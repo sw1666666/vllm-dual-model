@@ -101,9 +101,25 @@ class DualWorker(Worker):
                 tokenizer=self.dual_model_config.large_model,
                 served_model_name=["large"],
             )
+            # A compact large sub-batch can catch up multiple long histories
+            # even though the public scheduler only advances one token per
+            # request. Size the private runner's token buffers for that worst
+            # case instead of inheriting the public per-step token budget.
+            large_scheduler_config = replace(
+                large_vllm_config.scheduler_config,
+                max_model_len=large_vllm_config.model_config.max_model_len,
+                is_encoder_decoder=(
+                    large_vllm_config.model_config.is_encoder_decoder
+                ),
+                max_num_batched_tokens=(
+                    large_vllm_config.scheduler_config.max_num_seqs
+                    * large_vllm_config.model_config.max_model_len
+                ),
+            )
             large_vllm_config = replace(
                 large_vllm_config,
                 model_config=large_model_config,
+                scheduler_config=large_scheduler_config,
             )
 
         self._memory_snapshot("before_small")
