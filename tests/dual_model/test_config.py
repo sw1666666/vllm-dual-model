@@ -16,3 +16,10 @@ def test_config_rejects_invalid_values() -> None:
         DualModelConfig(p_large=1.1)
     with pytest.raises(ValueError):
         DualModelConfig(forced_routes=[0, 2])
+
+
+def test_default_kv_budgets_keep_total_and_balance_block_capacity() -> None:
+    config = DualModelConfig()
+    assert config.small_kv_cache_bytes == 1120 << 20
+    assert config.large_kv_cache_bytes == 1440 << 20
+    assert config.small_kv_cache_bytes + config.large_kv_cache_bytes == 2560 << 20

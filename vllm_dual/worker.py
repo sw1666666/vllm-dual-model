@@ -176,11 +176,12 @@ class DualWorker(Worker):
         small_bytes = sum(t.size for t in small_kv_config.kv_cache_tensors)
         large_bytes = sum(t.size for t in large_kv_config.kv_cache_tensors)
         outer_bytes = sum(t.size for t in kv_cache_config.kv_cache_tensors)
+        outer_block_bytes = outer_bytes // kv_cache_config.num_blocks
         if small_bytes > self.dual_model_config.small_kv_cache_bytes:
             raise AssertionError("small KV allocation exceeds configured budget")
         if large_bytes > self.dual_model_config.large_kv_cache_bytes:
             raise AssertionError("large KV allocation exceeds configured budget")
-        if small_bytes + large_bytes > outer_bytes:
+        if small_bytes + large_bytes > outer_bytes + outer_block_bytes:
             raise AssertionError("split KV allocations exceed outer budget")
         self.large_model_runner.initialize_kv_cache(large_kv_config)
         logger.info(

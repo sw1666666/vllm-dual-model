@@ -15,8 +15,8 @@ class DualModelConfig:
     mode: str = "sync"
     sync_forward_enabled: bool = False
     forced_routes: list[int] | None = None
-    small_kv_cache_bytes: int = 512 << 20
-    large_kv_cache_bytes: int = 2 << 30
+    small_kv_cache_bytes: int = 1120 << 20
+    large_kv_cache_bytes: int = 1440 << 20
     trace_path: str = "artifacts/traces/dual.jsonl"
 
     def __post_init__(self) -> None:

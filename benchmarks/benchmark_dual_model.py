@@ -38,6 +38,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--route-pattern", choices=("random", "clustered"), required=True)
     parser.add_argument("--warmup", type=int, default=1)
     parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--small-kv-cache-mib", type=int, default=1120)
+    parser.add_argument("--large-kv-cache-mib", type=int, default=1440)
     parser.add_argument("--output-json", type=Path, required=True)
     parser.add_argument("--trace-path", type=Path, required=True)
     return parser.parse_args()
@@ -87,6 +89,8 @@ def main() -> None:
         p_large=args.p_large,
         router_seed=17,
         forced_routes=forced_routes,
+        small_kv_cache_bytes=args.small_kv_cache_mib << 20,
+        large_kv_cache_bytes=args.large_kv_cache_mib << 20,
         trace_path=str(args.trace_path),
     )
     llm = LLM(
@@ -105,7 +109,9 @@ def main() -> None:
         async_scheduling=False,
         seed=17,
         generation_config="vllm",
-        kv_cache_memory_bytes=(512 << 20) + (2 << 30),
+        kv_cache_memory_bytes=(
+            (args.small_kv_cache_mib + args.large_kv_cache_mib) << 20
+        ),
     )
 
     warmup_params = SamplingParams(temperature=0.0, max_tokens=4)
@@ -179,6 +185,8 @@ def main() -> None:
                             "schema_version": 1,
                             "warmup": args.warmup,
                             "repeat_count": args.repeats,
+                            "small_kv_cache_mib": args.small_kv_cache_mib,
+                            "large_kv_cache_mib": args.large_kv_cache_mib,
                             "forced_routes": forced_routes,
                             "results": results,
                         },
