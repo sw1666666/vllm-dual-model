@@ -41,6 +41,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--small-kv-cache-mib", type=int, default=1120)
     parser.add_argument("--large-kv-cache-mib", type=int, default=1440)
     parser.add_argument("--batch-sizes", default="1,2,4")
+    parser.add_argument("--cuda-graph", action="store_true")
     parser.add_argument("--output-json", type=Path, required=True)
     parser.add_argument("--trace-path", type=Path, required=True)
     return parser.parse_args()
@@ -103,7 +104,7 @@ def main() -> None:
         scheduler_cls="vllm_dual.scheduler.DualScheduler",
         additional_config={"dual_model": dual.to_dict()},
         dtype="half",
-        enforce_eager=True,
+        enforce_eager=not args.cuda_graph,
         max_model_len=256,
         max_num_seqs=max(batch_sizes),
         max_num_batched_tokens=256,
@@ -118,9 +119,13 @@ def main() -> None:
         ),
     )
 
-    warmup_params = SamplingParams(temperature=0.0, max_tokens=4)
+    warmup_params = SamplingParams(temperature=0.0, max_tokens=32)
     for index in range(args.warmup):
-        llm.generate(make_prompts(32, 4, index), warmup_params, use_tqdm=False)
+        llm.generate(
+            make_prompts(32, max(batch_sizes), index),
+            warmup_params,
+            use_tqdm=False,
+        )
 
     results = []
     case_index = 0
@@ -193,6 +198,7 @@ def main() -> None:
                             "small_kv_cache_mib": args.small_kv_cache_mib,
                             "large_kv_cache_mib": args.large_kv_cache_mib,
                             "batch_sizes": batch_sizes,
+                            "cuda_graph": args.cuda_graph,
                             "forced_routes": forced_routes,
                             "results": results,
                         },

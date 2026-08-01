@@ -193,6 +193,14 @@ class DualWorker(Worker):
             large_bytes,
         )
 
+    def compile_or_warm_up_model(self) -> None:
+        super().compile_or_warm_up_model()
+        if (
+            self.large_model_runner is not None
+            and not self.model_config.enforce_eager
+        ):
+            self.large_model_runner.capture_model()
+
     @torch.inference_mode()
     def execute_model(self, scheduler_output):
         for finished_req_id in scheduler_output.finished_req_ids:
