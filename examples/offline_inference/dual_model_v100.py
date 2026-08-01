@@ -57,7 +57,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--prompts-json", type=Path)
     parser.add_argument("--max-tokens", type=int, default=16)
     parser.add_argument("--max-tokens-json", type=Path)
-    parser.add_argument("--max-num-seqs", type=int, default=1)
+    parser.add_argument("--max-num-seqs", type=int, default=16)
     parser.add_argument("--kv-cache-memory-bytes", type=int)
     parser.add_argument("--small-kv-cache-bytes", type=int, default=1120 << 20)
     parser.add_argument("--large-kv-cache-bytes", type=int, default=1440 << 20)

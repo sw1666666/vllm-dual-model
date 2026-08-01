@@ -40,6 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--small-kv-cache-mib", type=int, default=1120)
     parser.add_argument("--large-kv-cache-mib", type=int, default=1440)
+    parser.add_argument("--batch-sizes", default="1,2,4")
     parser.add_argument("--output-json", type=Path, required=True)
     parser.add_argument("--trace-path", type=Path, required=True)
     return parser.parse_args()
@@ -76,6 +77,9 @@ def percentile(values: list[float], fraction: float) -> float:
 
 def main() -> None:
     args = parse_args()
+    batch_sizes = tuple(int(value) for value in args.batch_sizes.split(","))
+    if not batch_sizes or any(value <= 0 for value in batch_sizes):
+        raise ValueError("--batch-sizes must contain positive integers")
     forced_routes = (
         clustered_routes(args.p_large)
         if args.route_pattern == "clustered"
@@ -101,7 +105,7 @@ def main() -> None:
         dtype="half",
         enforce_eager=True,
         max_model_len=256,
-        max_num_seqs=4,
+        max_num_seqs=max(batch_sizes),
         max_num_batched_tokens=256,
         block_size=16,
         enable_prefix_caching=False,
@@ -120,9 +124,10 @@ def main() -> None:
 
     results = []
     case_index = 0
+    total_cases = 3 * 2 * len(batch_sizes)
     for prompt_len in (32, 64, 128):
         for output_len in (16, 32):
-            for batch_size in (1, 2, 4):
+            for batch_size in batch_sizes:
                 repeat_rows = []
                 for repeat in range(args.repeats):
                     prompts = make_prompts(prompt_len, batch_size, 10000 + case_index * 100 + repeat)
@@ -187,6 +192,7 @@ def main() -> None:
                             "repeat_count": args.repeats,
                             "small_kv_cache_mib": args.small_kv_cache_mib,
                             "large_kv_cache_mib": args.large_kv_cache_mib,
+                            "batch_sizes": batch_sizes,
                             "forced_routes": forced_routes,
                             "results": results,
                         },
@@ -197,7 +203,8 @@ def main() -> None:
                 )
                 case_index += 1
                 print(
-                    f"case={case_index}/18 prompt={prompt_len} output={output_len} "
+                    f"case={case_index}/{total_cases} prompt={prompt_len} "
+                    f"output={output_len} "
                     f"batch={batch_size} tok_s={statistics.mean(throughputs):.3f}"
                 )
 
