@@ -1,0 +1,868 @@
+{
+  "gpu": "1 x Tesla V100-PCIE-32GB",
+  "driver": "535.54.03",
+  "fork_checkout": "18df3cef8f61ce371d1958374927b48aba7eafe2 + working tree / remote SM70 build patches",
+  "dtype": "float16",
+  "attention": "TRITON_ATTN",
+  "quantization": null,
+  "tp": 1,
+  "pp": 1,
+  "block_size": 16,
+  "max_num_seqs": 32,
+  "max_model_len": 512,
+  "max_num_batched_tokens": 1024,
+  "single_cache_mib": 2560,
+  "sampling": {
+    "temperature": 0,
+    "generation_config": "vllm",
+    "max_tokens": 48,
+    "seed": 17
+  },
+  "graph": "FULL_AND_PIECEWISE, enforce_eager=False; per-call dispatch captured during diag",
+  "torch": "2.9.0",
+  "triton": "3.5.0",
+  "transformers": "4.57.6",
+  "trace_sha256": "393281ea1a8eee5613d4533be07d193fe1043cb3e8d8190f429e04df83ad4586",
+  "source": "Qwen/Qwen2.5-1.5B-Instruct",
+  "models": {
+    "8960": {
+      "path": "/root/autodl-tmp/models/Qwen2.5-1.5B-Instruct",
+      "weights": "dd924a11b4c220f385b51ffa522daea7c9f3d850e31b162bb5661df483c6d3ee",
+      "config": "98d2ff8cc47488d08a2b0b3acf4eb99ef210779b42bd48605f6b8e36acdbf670",
+      "tokenizer": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+    },
+    "4480": {
+      "path": "/root/autodl-tmp/models/Qwen2.5-1.5B-Instruct-static-ffn-4480",
+      "weights": "8fd34ae128b7c61bf13279464f8f780e5f09ca1993e58391ab190fc864971895",
+      "config": "a65aa95e7fa68b116c428305dbd25d30f0c9067c0450f1dc56c48c5c0e650ea2",
+      "tokenizer": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+    },
+    "2304": {
+      "path": "/root/autodl-tmp/models/Qwen2.5-1.5B-Instruct-static-ffn-2304",
+      "weights": "9aabdab99a90f28897f94c84a602913fd3a3ccb039993935c9fc6b41d9631b74",
+      "config": "7f38f174fbd7c24bc8d64e0da23ec16d225ac8bc54468533704ff11504873ca4",
+      "tokenizer": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+    }
+  },
+  "source_config_sha256": "98d2ff8cc47488d08a2b0b3acf4eb99ef210779b42bd48605f6b8e36acdbf670",
+  "kernel_shapes": {
+    "8960": [
+      [
+        "aten::linear",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            17920,
+            1536
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            1536,
+            17920
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            1536,
+            17920
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            1,
+            8960
+          ],
+          [
+            1536,
+            8960
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            1,
+            8960
+          ],
+          [
+            8960,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            1,
+            8960
+          ],
+          [
+            8960,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            17920,
+            1536
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            1536,
+            17920
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            1536,
+            17920
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            32,
+            8960
+          ],
+          [
+            1536,
+            8960
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            32,
+            8960
+          ],
+          [
+            8960,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            32,
+            8960
+          ],
+          [
+            8960,
+            1536
+          ]
+        ]
+      ]
+    ],
+    "4480": [
+      [
+        "aten::linear",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            8960,
+            1536
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            1536,
+            8960
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            1536,
+            8960
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            1,
+            4480
+          ],
+          [
+            1536,
+            4480
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            1,
+            4480
+          ],
+          [
+            4480,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            1,
+            4480
+          ],
+          [
+            4480,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            8960,
+            1536
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            1536,
+            8960
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            1536,
+            8960
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            32,
+            4480
+          ],
+          [
+            1536,
+            4480
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            32,
+            4480
+          ],
+          [
+            4480,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            32,
+            4480
+          ],
+          [
+            4480,
+            1536
+          ]
+        ]
+      ]
+    ],
+    "2304": [
+      [
+        "aten::linear",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            4608,
+            1536
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            1536,
+            4608
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            1,
+            1536
+          ],
+          [
+            1536,
+            4608
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            1,
+            2304
+          ],
+          [
+            1536,
+            2304
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            1,
+            2304
+          ],
+          [
+            2304,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            1,
+            2304
+          ],
+          [
+            2304,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            4608,
+            1536
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            1536,
+            4608
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            32,
+            1536
+          ],
+          [
+            1536,
+            4608
+          ]
+        ]
+      ],
+      [
+        "aten::linear",
+        [
+          [
+            32,
+            2304
+          ],
+          [
+            1536,
+            2304
+          ],
+          []
+        ]
+      ],
+      [
+        "aten::matmul",
+        [
+          [
+            32,
+            2304
+          ],
+          [
+            2304,
+            1536
+          ]
+        ]
+      ],
+      [
+        "aten::mm",
+        [
+          [
+            32,
+            2304
+          ],
+          [
+            2304,
+            1536
+          ]
+        ]
+      ]
+    ]
+  },
+  "compiled_graphs": {
+    "8960": {
+      "path": "/root/.cache/vllm/torch_compile_cache/c469f93cbc/rank_0_0/backbone/computation_graph.py",
+      "sha256": "5121f167d927ffc8c70ec53869e1f901a2428420d66e5d2ddd5531c18c49d225",
+      "validated_layers": 28,
+      "qkv": [
+        2048,
+        1536
+      ],
+      "attn_out": [
+        1536,
+        1536
+      ],
+      "gate_up": [
+        17920,
+        1536
+      ],
+      "down": [
+        1536,
+        8960
+      ]
+    },
+    "4480": {
+      "path": "/root/.cache/vllm/torch_compile_cache/ced4ef7375/rank_0_0/backbone/computation_graph.py",
+      "sha256": "476765acc210befb7a9f3dbba8308a2764f979e5e5bd02e71017defe1f234aeb",
+      "validated_layers": 28,
+      "qkv": [
+        2048,
+        1536
+      ],
+      "attn_out": [
+        1536,
+        1536
+      ],
+      "gate_up": [
+        8960,
+        1536
+      ],
+      "down": [
+        1536,
+        4480
+      ]
+    },
+    "2304": {
+      "path": "/root/.cache/vllm/torch_compile_cache/53b2fb6ae0/rank_0_0/backbone/computation_graph.py",
+      "sha256": "5b13fe6d05bf1b9c7d4d8cdeedaf33b80b4bdcb255190cd5a97923bfea72526f",
+      "validated_layers": 28,
+      "qkv": [
+        2048,
+        1536
+      ],
+      "attn_out": [
+        1536,
+        1536
+      ],
+      "gate_up": [
+        4608,
+        1536
+      ],
+      "down": [
+        1536,
+        2304
+      ]
+    }
+  },
+  "graph_same": true,
+  "measured_graph": {
+    "8960": {
+      "1": [
+        {
+          "active": 1,
+          "mode": "FULL",
+          "padded": 1,
+          "count": 4
+        }
+      ],
+      "32": [
+        {
+          "active": 3,
+          "mode": "FULL",
+          "padded": 4,
+          "count": 45
+        },
+        {
+          "active": 4,
+          "mode": "FULL",
+          "padded": 4,
+          "count": 2
+        },
+        {
+          "active": 25,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 16
+        },
+        {
+          "active": 26,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 17
+        },
+        {
+          "active": 27,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 5
+        },
+        {
+          "active": 28,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 46
+        },
+        {
+          "active": 29,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 45
+        },
+        {
+          "active": 30,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 2
+        },
+        {
+          "active": 31,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 2
+        },
+        {
+          "active": 32,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 8
+        }
+      ]
+    },
+    "4480": {
+      "1": [
+        {
+          "active": 1,
+          "mode": "FULL",
+          "padded": 1,
+          "count": 4
+        }
+      ],
+      "32": [
+        {
+          "active": 3,
+          "mode": "FULL",
+          "padded": 4,
+          "count": 45
+        },
+        {
+          "active": 4,
+          "mode": "FULL",
+          "padded": 4,
+          "count": 2
+        },
+        {
+          "active": 25,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 16
+        },
+        {
+          "active": 26,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 17
+        },
+        {
+          "active": 27,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 5
+        },
+        {
+          "active": 28,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 46
+        },
+        {
+          "active": 29,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 45
+        },
+        {
+          "active": 30,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 2
+        },
+        {
+          "active": 31,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 2
+        },
+        {
+          "active": 32,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 8
+        }
+      ]
+    },
+    "2304": {
+      "1": [
+        {
+          "active": 1,
+          "mode": "FULL",
+          "padded": 1,
+          "count": 4
+        }
+      ],
+      "32": [
+        {
+          "active": 3,
+          "mode": "FULL",
+          "padded": 4,
+          "count": 45
+        },
+        {
+          "active": 4,
+          "mode": "FULL",
+          "padded": 4,
+          "count": 2
+        },
+        {
+          "active": 25,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 16
+        },
+        {
+          "active": 26,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 17
+        },
+        {
+          "active": 27,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 5
+        },
+        {
+          "active": 28,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 46
+        },
+        {
+          "active": 29,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 45
+        },
+        {
+          "active": 30,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 2
+        },
+        {
+          "active": 31,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 2
+        },
+        {
+          "active": 32,
+          "mode": "FULL",
+          "padded": 32,
+          "count": 8
+        }
+      ]
+    }
+  },
+  "benchmark": "static-ffn-v1",
+  "layers": 28,
+  "hidden": 1536,
+  "widths": [
+    8960,
+    4480,
+    2304
+  ],
+  "slice": "each HF gate/up first w rows and down first w columns; all other checkpoint tensors unchanged",
+  "numerical": "FP16 masked-full against exported narrow; additional same-shaped projection and FP32 algebra checks. relative_l2 is norm(diff)/norm(ref).",
+  "trace": "artifacts/free-kv-v1/trace.jsonl",
+  "orders": [
+    [
+      8960,
+      4480,
+      2304
+    ],
+    [
+      4480,
+      2304,
+      8960
+    ],
+    [
+      2304,
+      8960,
+      4480
+    ],
+    [
+      8960,
+      4480,
+      2304
+    ],
+    [
+      4480,
+      2304,
+      8960
+    ]
+  ],
+  "schedule": "fixed trace cohort and slot index, B=1/32; no route, no admission/queue; one GPU model per process",
+  "timing": "synchronize before and after contiguous cohort decode, engine-step commit timestamps, exclude prefill/load/log writes; warm B=1 on first request, B=32 all cohorts each measurement; B order alternates by round",
+  "preemptions": 0,
+  "source_hashes": {
+    "benchmarks/free_kv_replay.py": "52d6a8ad5f8bf1e8adf8910d9d0ee50be085e4e53f4b20cf8148e20ff7871ae6",
+    "benchmarks/static_ffn_replay.py": "6e89a6df4a53d62e4674239d96928d77c52de3b0fd5fee4562597ce3f83579f1",
+    "benchmarks/export_static_ffn.py": "d6e5a4cb86ab029ac0fd7f18e92b3991a8b9ac744b4b09eafa81c98d9ed63619",
+    "vllm/v1/worker/gpu_model_runner.py": "894de9f97fcd7997f22287ef234afa43cb5ecdbb49c605c3eee976148c9059c2",
+    "vllm/model_executor/models/qwen2.py": "b654190d84fa671c2cfccf8a2f78568eae218a6ede4c44b4f05be861f6cf787c"
+  }
+}

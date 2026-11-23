@@ -1,0 +1,1 @@
+{"model": "/root/autodl-tmp/models/Qwen3-0.6B", "hidden": 1024, "ffn": 3072, "core": 768, "layers": 28, "gpu": "Tesla V100-PCIE-32GB", "torch": "2.9.0+cu128"}

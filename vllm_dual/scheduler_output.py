@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class DualStepMetadata:
-    route: int
+    route: int | None  # None until the worker evaluates the GRPO head.
     output_index: int
     history_len_before: int
     large_before: int

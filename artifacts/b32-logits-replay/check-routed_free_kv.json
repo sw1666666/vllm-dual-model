@@ -1,0 +1,1 @@
+{"passed": true, "N": 4091, "steps": 188, "heavy_rows": 384, "native_calls": 150, "native_rows": 384, "catchup": 0, "ordered_rows_and_positions": true, "stop_steps_and_active_ids": true, "samples_match": 4091, "max_abs": 0.0, "top1": 1, "worst_request": "31", "worst_pos": 99, "max_buffer_bytes": 0}

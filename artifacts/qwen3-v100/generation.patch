@@ -1,0 +1,27 @@
+--- a/benchmark_modes.py
++++ b/benchmark_modes.py
+@@ -101,10 +101,11 @@
+             **common,
+         )
+ 
+-    params = SamplingParams(temperature=0.0, max_tokens=32)
+-    llm.generate(prompts(max(args.batch_sizes), 0), params, use_tqdm=False)
++    params = SamplingParams(temperature=0.0, max_tokens=32, ignore_eos=True)
+     rows = []
+     for batch_size in args.batch_sizes:
++        llm.generate(prompts(batch_size, 0), params, use_tqdm=False)
++        torch.cuda.synchronize()
+         repeats = []
+         for repeat in range(3):
+             torch.cuda.reset_peak_memory_stats()
+@@ -117,8 +118,10 @@
+             torch.cuda.synchronize()
+             latency = time.perf_counter() - started
+             output_tokens = sum(len(o.outputs[0].token_ids) for o in outputs)
++            assert all(len(o.outputs[0].token_ids) == 32 for o in outputs)
+             repeats.append(
+                 {
++                    "request_ids": [o.request_id for o in outputs],
+                     "latency_seconds": latency,
+                     "output_tokens": output_tokens,
+                     "output_tokens_per_second": output_tokens / latency,

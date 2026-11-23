@@ -1,0 +1,96 @@
+{
+  "Qwen3-0.6B": {
+    "files": {
+      "model.safetensors": {
+        "bytes": 1503300328,
+        "header_sha256": "399d16f500e925c7e923fe05966c6df6862ab64da60916843119e802f1801bca"
+      }
+    },
+    "config": {
+      "architectures": [
+        "Qwen3ForCausalLM"
+      ],
+      "attention_bias": false,
+      "attention_dropout": 0.0,
+      "bos_token_id": 151643,
+      "eos_token_id": 151645,
+      "head_dim": 128,
+      "hidden_act": "silu",
+      "hidden_size": 1024,
+      "initializer_range": 0.02,
+      "intermediate_size": 3072,
+      "max_position_embeddings": 40960,
+      "max_window_layers": 28,
+      "model_type": "qwen3",
+      "num_attention_heads": 16,
+      "num_hidden_layers": 28,
+      "num_key_value_heads": 8,
+      "rms_norm_eps": 1e-06,
+      "rope_scaling": null,
+      "rope_theta": 1000000,
+      "sliding_window": null,
+      "tie_word_embeddings": true,
+      "torch_dtype": "bfloat16",
+      "transformers_version": "4.51.0",
+      "use_cache": true,
+      "use_sliding_window": false,
+      "vocab_size": 151936
+    },
+    "tokenizer_sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4"
+  },
+  "Qwen3-8B": {
+    "files": {
+      "model-00001-of-00005.safetensors": {
+        "bytes": 3996250744,
+        "header_sha256": "979bbeed365485ddaa67a1ed41d0289e15e2f3ba0b3388cb93e42d31f346d1df"
+      },
+      "model-00002-of-00005.safetensors": {
+        "bytes": 3993160032,
+        "header_sha256": "347ca6985eefe87273139b97dde9c547da3ab59c782a73beac1d498556ac0b45"
+      },
+      "model-00003-of-00005.safetensors": {
+        "bytes": 3959604768,
+        "header_sha256": "2c34e283f27490d335b129053f9c50504a357ba8b67a2e89fcf5d39cdd85f6f4"
+      },
+      "model-00004-of-00005.safetensors": {
+        "bytes": 3187841392,
+        "header_sha256": "3f2742edfb110486c05a06b091280eefb7d2bc05252d1b78f1233c1a813a48e7"
+      },
+      "model-00005-of-00005.safetensors": {
+        "bytes": 1244659840,
+        "header_sha256": "205a19ce27198b75abaeedc42f7a64387e19628b7804aff215887b255f1b8dd7"
+      }
+    },
+    "config": {
+      "architectures": [
+        "Qwen3ForCausalLM"
+      ],
+      "attention_bias": false,
+      "attention_dropout": 0.0,
+      "bos_token_id": 151643,
+      "eos_token_id": 151645,
+      "head_dim": 128,
+      "hidden_act": "silu",
+      "hidden_size": 4096,
+      "initializer_range": 0.02,
+      "intermediate_size": 12288,
+      "max_position_embeddings": 40960,
+      "max_window_layers": 36,
+      "model_type": "qwen3",
+      "num_attention_heads": 32,
+      "num_hidden_layers": 36,
+      "num_key_value_heads": 8,
+      "rms_norm_eps": 1e-06,
+      "rope_scaling": null,
+      "rope_theta": 1000000,
+      "sliding_window": null,
+      "tie_word_embeddings": false,
+      "torch_dtype": "bfloat16",
+      "transformers_version": "4.51.0",
+      "use_cache": true,
+      "use_sliding_window": false,
+      "vocab_size": 151936
+    },
+    "tokenizer_sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4"
+  }
+}

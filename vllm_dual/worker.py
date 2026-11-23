@@ -18,6 +18,7 @@ from vllm.v1.worker.gpu_model_runner import GPUModelRunner
 from vllm.v1.worker.gpu_worker import Worker
 
 from .config import DualModelConfig
+from .grpo_router import GrpoRouter
 from .model_runner import DualRuntime
 from .router import LARGE, ROUTE_NAMES, DeterministicRouter
 from .scheduler_output import DualStepMetadata
@@ -46,6 +47,7 @@ class DualWorker(Worker):
             p_large=self.dual_model_config.p_large,
             forced_routes=self.dual_model_config.forced_routes,
         )
+        self.grpo_router: GrpoRouter | None = None
         self.dual_request_states: dict[str, DualRequestState] = {}
         self.large_model_runner: GPUModelRunner | None = None
         self.pending_dual_steps: dict[
@@ -138,6 +140,12 @@ class DualWorker(Worker):
 
         assert large_vllm_config is not None
         self._check_model_compatibility()
+        if self.dual_model_config.router_checkpoint:
+            self.grpo_router = GrpoRouter(
+                self.dual_model_config.router_checkpoint, self.model_config.model,
+                self.model_config.hf_config.hidden_size, self.device,
+                large_threshold=self.dual_model_config.router_large_threshold,
+            )
         self.large_model_runner = GPUModelRunner(large_vllm_config, self.device)
         self.large_model_runner.load_model()
         self.large_runtime = DualRuntime(
@@ -205,6 +213,8 @@ class DualWorker(Worker):
     def execute_model(self, scheduler_output):
         for finished_req_id in scheduler_output.finished_req_ids:
             self.dual_request_states.pop(finished_req_id, None)
+            if self.grpo_router is not None:
+                self.grpo_router.discard(finished_req_id)
 
         if (
             self.dual_model_config.mode == "lazy"
@@ -240,7 +250,12 @@ class DualWorker(Worker):
         sync_large = self.dual_model_config.mode == "sync"
         self.pending_dual_steps = {}
         large_req_ids: list[str] = []
-        for req_id in self.model_runner.input_batch.req_ids:
+        req_ids = self.model_runner.input_batch.req_ids
+        actions = None
+        if self.grpo_router is not None:
+            hidden = self.model_runner.execute_model_state.sample_hidden_states
+            actions = self.grpo_router.decide(req_ids, hidden)
+        for row, req_id in enumerate(req_ids):
             if req_id not in scheduler_output.num_scheduled_tokens:
                 continue
             request = self.model_runner.requests[req_id]
@@ -251,6 +266,13 @@ class DualWorker(Worker):
             if req_id not in scheduler_metadata:
                 raise RuntimeError(f"missing route metadata for {req_id}")
             scheduled_step = scheduler_metadata[req_id]
+            if actions is not None:
+                before = state.large_num_computed_tokens
+                action = actions[row]
+                scheduled_step = replace(
+                    scheduled_step, route=action, large_before=before,
+                    large_delta=len(history) - before if action == LARGE else 0,
+                )
             if scheduled_step.output_index != state.output_index:
                 raise AssertionError("scheduler/worker output index mismatch")
             if scheduled_step.history_len_before != len(history):
@@ -307,7 +329,19 @@ class DualWorker(Worker):
             else:
                 large_request = self.large_model_runner.requests[req_id]
                 cached_ids.append(req_id)
-                cached_block_ids.append(deepcopy(scheduled_step.large_new_block_ids))
+                if self.grpo_router is None:
+                    new_blocks = scheduled_step.large_new_block_ids
+                else:
+                    # Include every page reserved since this request's last
+                    # large call, including pages reserved during small steps.
+                    new_blocks = tuple(
+                        full[len(previous):]
+                        for full, previous in zip(
+                            scheduled_step.large_block_ids, large_request.block_ids,
+                            strict=True,
+                        )
+                    )
+                cached_block_ids.append(deepcopy(new_blocks))
                 cached_computed.append(plan.large_before)
                 cached_output_tokens.append(len(large_request.output_token_ids))
         cached_reqs = CachedRequestData(
@@ -459,6 +493,8 @@ class DualWorker(Worker):
                 "small_kv_ptr": small_kv_ptr,
                 "large_kv_ptr": large_kv_ptr,
             })
+            if self.grpo_router is not None:
+                self.grpo_router.commit(req_id, state.output_index, plan.route)
             state.commit_sample()
         self.pending_dual_steps = {}
         return output

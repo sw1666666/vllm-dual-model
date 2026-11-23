@@ -1,0 +1,147 @@
+--- a/mixed_ffn_engine.py
++++ b/mixed_ffn_engine.py
+@@ -42,7 +42,7 @@
+     mode,k,diag=s.key
+     if mode=="Cref":
+         gate,up=fn.linear(x,full).chunk(2,-1)
+-        return fn.linear(fn.silu(gate[:,:2304])*up[:,:2304],cd)
++        return fn.linear(fn.silu(gate[:,:s.core])*up[:,:s.core],cd)
+     c=swiglu(x,cg,cd)
+     if mode=="C" or (mode=="M" and not k):
+         return c
+@@ -58,7 +58,8 @@
+     if diag: ev[1].record()
+     e=swiglu(z,eg,ed)
+     if diag: ev[2].record()
+-    _scatter[(k,6)](c,e,idx,1536,256)
++    width = x.shape[-1]
++    _scatter[(k,width//256)](c,e,idx,width,256)
+     if diag: ev[3].record()
+     return c
+ 
+@@ -106,15 +107,20 @@
+         self.runner=runner
+         self.weights=[]
+         base=runner.get_model().model
++        config = runner.model_config.hf_config
++        hidden = config.hidden_size
++        full = config.intermediate_size
++        self.core = full // 4
++        assert hidden % 256 == 0 and full % 4 == 0
+         for layer in base.layers:
+             mlp=layer.mlp
+             gu=mlp.gate_up_proj.weight.detach()
+             d=mlp.down_proj.weight.detach()
+             g,u=gu.chunk(2,0)
+-            assert g.shape==u.shape==(8960,1536) and d.shape==(1536,8960)
+-            self.weights.append((torch.cat((g[:2304],u[:2304])),d[:,:2304].contiguous(),
+-                                 torch.cat((g[2304:],u[2304:])),d[:,2304:].contiguous(),gu))
+-        assert len(self.weights)==28 and self.weights[0][2].dtype==torch.float16
++            assert g.shape==u.shape==(full,hidden) and d.shape==(hidden,full)
++            self.weights.append((torch.cat((g[:self.core],u[:self.core])),d[:,:self.core].contiguous(),
++                                 torch.cat((g[self.core:],u[self.core:])),d[:,self.core:].contiguous(),gu))
++        assert len(self.weights)==config.num_hidden_layers and self.weights[0][2].dtype==torch.float16
+         CTX=self
+         self.indices=torch.arange(32,device="cuda",dtype=torch.int64)
+         self.mask=torch.zeros(32,device="cuda",dtype=torch.bool)
+@@ -122,7 +128,7 @@
+         self.cfg.compilation_config=copy.copy(self.cfg.compilation_config)
+         import hashlib
+         tag=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()[:12]
+-        self.cfg.compilation_config.cache_dir=str(Path("artifacts/mixed-ffn-v1/cache",tag).resolve())
++        self.cfg.compilation_config.cache_dir=str(Path("artifacts/qwen3-v100/cache",str(hidden),tag).resolve())
+         self.cfg.compilation_config.traced_files=set()
+         with set_current_vllm_config(self.cfg,prefix="split_backbone"):
+             self.alt=Backbone(base=base,vllm_config=self.cfg)
+@@ -146,7 +152,7 @@
+                     for p in sorted(sizes,reverse=True):
+                         if any(d.num_tokens==p for d in wrap.concrete_cudagraph_entries):continue
+                         if diag:
+-                            self.clock=[[torch.cuda.Event(enable_timing=True,external=True) for _ in range(4)] for _ in range(28)]
++                            self.clock=[[torch.cuda.Event(enable_timing=True,external=True) for _ in range(4)] for _ in self.weights]
+                             self.clocks[key,p]=self.clock
+                         for graph in (False,True):
+                             r._dummy_run(p,cudagraph_runtime_mode=CUDAGraphMode.FULL if graph else CUDAGraphMode.NONE,
+--- a/mixed_ffn_replay.py
++++ b/mixed_ffn_replay.py
+@@ -92,7 +92,7 @@
+             for k,r in self.data.items():
+                 n=len(r["prompt_ids"])
+                 x=self.kv(k,n,n+len(r["output_ids"])-1)
+-                assert x.shape[0]==28 and x.isfinite().all().item()
++                assert x.shape[0]==len(self.paths.weights) and x.isfinite().all().item()
+                 if self.audit=="fixture":self.written[k]=x.cpu()
+ 
+     def forward(self,**kw):
+@@ -169,7 +169,7 @@
+         ab,rel=err(x,y)
+         vals.append(dict(type="logits",request=rid,pos=lens[rid]+t-1,layer=None,max_abs=ab,rel=rel,top1=int(x.argmax()==y.argmax())))
+     for rid,x in kv.items():
+-        for i in range(28):
++        for i in range(x.shape[0]):
+             for t in range(x.shape[1]):
+                 ab,rel=err(x[i,t],kt[rid][i,t])
+                 vals.append(dict(type="KV",request=rid,pos=lens[rid]+t,layer=i,max_abs=ab,rel=rel,top1=None))
+--- a/concentrated_replay.py
++++ b/concentrated_replay.py
+@@ -1,5 +1,7 @@
+ """2B: use exactly the 2A runner and conditional graphs. Only trace flags differ."""
++import argparse
+ import json
++from pathlib import Path
+ import sys
+ from collections import defaultdict
+ from types import SimpleNamespace
+@@ -33,15 +35,26 @@
+ 
+ @torch.inference_mode()
+ def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--model", required=True)
++    parser.add_argument("--out", type=Path, required=True)
++    args = parser.parse_args()
++    args.out.mkdir(parents=True, exist_ok=True)
++    def save(name, value):
++        (args.out / name).write_text(json.dumps(value, allow_nan=False) + "\n")
+     locked,groups,sel=inputs()
+     # Full first cohort, real prefixes, same synthetic history up to the first
+     # few wide steps. Limit the audit size only; all formal runs use 100 requests.
+     samples={}
+-    for mode in ("M96","M80"):
++    for mode in MODES[1:]:
+         t=next(s["step"] for s,w in zip(locked,sel[mode]) if s["cohort"]==0 and w)
+         length=max(5,t+2)
+         samples[mode]=[dict(r,output_ids=r["output_ids"][:length],route_for_output=r["route_for_output"][:length]) for r in groups[mode][0]]
+-    replay=Replay(SimpleNamespace(mode="large",large="/root/autodl-tmp/models/Qwen2.5-1.5B-Instruct",job="mix"))
++    replay=Replay(SimpleNamespace(mode="large",large=args.model,job="mix"))
++    config = replay.main.model_config.hf_config
++    save("config.json", dict(model=args.model, hidden=config.hidden_size, ffn=config.intermediate_size,
++                             core=config.intermediate_size//4, layers=config.num_hidden_layers,
++                             gpu=torch.cuda.get_device_name(), torch=str(torch.__version__)))
+     d=Driver(replay);replay.benchmark_probe=d
+     plan=defaultdict(set)
+     for mode in MODES[1:]:
+@@ -65,7 +78,7 @@
+         assert any(x["wide"] for x in vals) and max(x["relative_l2"] for x in vals)<.025 and rate>=.90
+         checks.append(dict(mode=mode,n=len(vals),wide=sum(x["wide"] for x in vals),top1=rate,max_relative_l2=max(x["relative_l2"] for x in vals),worst_abs=max(vals,key=lambda x:x["max_abs"]),full_prefix_KV_equal=True))
+         del ref,test,p0,p1,v0,v1
+-    dump("checks.json",checks)
++    save("checks.json",checks)
+     print("dense checks",checks,flush=True)
+     audit=[]
+     # Untimed physical-row + graph-dispatch audit. No GPU events/profiling.
+@@ -92,12 +105,12 @@
+                 j+=1
+         assert j==188
+     d.paths.forward=direct
+-    dump("audit.json",audit)
++    save("audit.json",audit)
+     for m in MODES:d.run("F" if m=="F" else "M",groups[m])
+     for rep in range(5):
+         for j in range(4):
+             m=MODES[(rep+j)%4];rec=d.run("F" if m=="F" else "M",groups[m])
+-            dump(f"time-{rep}-{m}.json",rec)
++            save(f"time-{rep}-{m}.json",rec)
+             print("formal",rep,m,round(1000*sum(c["wall_s"] for c in rec),2),flush=True)
+ 
+ 

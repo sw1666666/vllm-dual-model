@@ -2992,6 +2992,18 @@ class GPUModelRunner(
             record_function_or_nullcontext("gpu_model_runner: forward"),
             self.maybe_get_kv_connector_output(scheduler_output) as kv_connector_output,
         ):
+            # Fixed-trace benchmark only. The private large runner consumes
+            # only logits and discards this state before the next forward.
+            replay = getattr(self, "_benchmark_ready_logits", None)
+            if replay is not None:
+                logits = next(replay)
+                self.execute_model_state = ExecuteModelState(
+                    scheduler_output, logits, spec_decode_metadata,
+                    spec_decode_common_attn_metadata, logits, logits, None,
+                    ec_connector_output,
+                )
+                self.kv_connector_output = kv_connector_output
+                return None
             model_output = self._model_forward(
                 input_ids=input_ids,
                 positions=positions,

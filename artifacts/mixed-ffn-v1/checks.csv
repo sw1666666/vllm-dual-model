@@ -1,0 +1,7 @@
+pair,type,n,max_abs,max_rel,worst_request,worst_pos,worst_layer,top1,prompt_KV_bitwise,ordered_rows,passed
+F/W,logits,21,0.0390625,0.0029574085492640734,4,63,,1.0,True,True,True
+F/W,KV,588,0.03125,0.002090789144858718,3,93,15,,True,True,True
+Cref/C,logits,21,0.0,0.0,3,89,,1.0,True,True,True
+Cref/C,KV,588,0.0,0.0,3,89,0,,True,True,True
+dense/M,logits,21,0.09375,0.0027676548343151808,3,92,,1.0,True,True,True
+dense/M,KV,588,0.03125,0.0052688103169202805,3,92,7,,True,True,True

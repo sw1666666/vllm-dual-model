@@ -1,0 +1,65 @@
+{
+  "8960": {
+    "path": "/root/.cache/vllm/torch_compile_cache/c469f93cbc/rank_0_0/backbone/computation_graph.py",
+    "sha256": "5121f167d927ffc8c70ec53869e1f901a2428420d66e5d2ddd5531c18c49d225",
+    "validated_layers": 28,
+    "qkv": [
+      2048,
+      1536
+    ],
+    "attn_out": [
+      1536,
+      1536
+    ],
+    "gate_up": [
+      17920,
+      1536
+    ],
+    "down": [
+      1536,
+      8960
+    ]
+  },
+  "4480": {
+    "path": "/root/.cache/vllm/torch_compile_cache/ced4ef7375/rank_0_0/backbone/computation_graph.py",
+    "sha256": "476765acc210befb7a9f3dbba8308a2764f979e5e5bd02e71017defe1f234aeb",
+    "validated_layers": 28,
+    "qkv": [
+      2048,
+      1536
+    ],
+    "attn_out": [
+      1536,
+      1536
+    ],
+    "gate_up": [
+      8960,
+      1536
+    ],
+    "down": [
+      1536,
+      4480
+    ]
+  },
+  "2304": {
+    "path": "/root/.cache/vllm/torch_compile_cache/53b2fb6ae0/rank_0_0/backbone/computation_graph.py",
+    "sha256": "5b13fe6d05bf1b9c7d4d8cdeedaf33b80b4bdcb255190cd5a97923bfea72526f",
+    "validated_layers": 28,
+    "qkv": [
+      2048,
+      1536
+    ],
+    "attn_out": [
+      1536,
+      1536
+    ],
+    "gate_up": [
+      4608,
+      1536
+    ],
+    "down": [
+      1536,
+      2304
+    ]
+  }
+}

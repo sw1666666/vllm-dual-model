@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "warmup": 1,
+  "repeat_count": 1,
+  "small_kv_cache_mib": 1120,
+  "large_kv_cache_mib": 1440,
+  "batch_sizes": [
+    1,
+    2,
+    4
+  ],
+  "cuda_graph": false,
+  "forced_routes": null,
+  "results": [
+    {
+      "prompt_length": 32,
+      "output_length": 16,
+      "batch_size": 1,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 0.7036520466208458,
+      "latency_seconds_p50": 0.7036520466208458,
+      "latency_seconds_p95": 0.7036520466208458,
+      "accepted_output_tokens_per_second_mean": 22.738511281018702,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 16,
+          "latency_seconds": 0.7036520466208458,
+          "accepted_output_tokens_per_second": 22.738511281018702,
+          "small_forward_tokens": 47,
+          "large_forward_tokens": 47,
+          "large_route_count": 9,
+          "large_catchup_tokens": 38,
+          "large_forward_tokens_per_accepted_output_token": 2.9375,
+          "peak_small_used_blocks": 3,
+          "peak_large_used_blocks": 3,
+          "peak_gpu_allocated_gib": 6.345928192138672,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 32,
+      "output_length": 16,
+      "batch_size": 2,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 0.9342028722167015,
+      "latency_seconds_p50": 0.9342028722167015,
+      "latency_seconds_p95": 0.9342028722167015,
+      "accepted_output_tokens_per_second_mean": 34.253801772274095,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 32,
+          "latency_seconds": 0.9342028722167015,
+          "accepted_output_tokens_per_second": 34.253801772274095,
+          "small_forward_tokens": 94,
+          "large_forward_tokens": 92,
+          "large_route_count": 14,
+          "large_catchup_tokens": 78,
+          "large_forward_tokens_per_accepted_output_token": 2.875,
+          "peak_small_used_blocks": 6,
+          "peak_large_used_blocks": 6,
+          "peak_gpu_allocated_gib": 6.346447944641113,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 32,
+      "output_length": 16,
+      "batch_size": 4,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 0.9623805955052376,
+      "latency_seconds_p50": 0.9623805955052376,
+      "latency_seconds_p95": 0.9623805955052376,
+      "accepted_output_tokens_per_second_mean": 66.5017564765017,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 64,
+          "latency_seconds": 0.9623805955052376,
+          "accepted_output_tokens_per_second": 66.5017564765017,
+          "small_forward_tokens": 188,
+          "large_forward_tokens": 178,
+          "large_route_count": 28,
+          "large_catchup_tokens": 150,
+          "large_forward_tokens_per_accepted_output_token": 2.78125,
+          "peak_small_used_blocks": 12,
+          "peak_large_used_blocks": 12,
+          "peak_gpu_allocated_gib": 6.3495025634765625,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 32,
+      "output_length": 32,
+      "batch_size": 1,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.3535873740911484,
+      "latency_seconds_p50": 1.3535873740911484,
+      "latency_seconds_p95": 1.3535873740911484,
+      "accepted_output_tokens_per_second_mean": 23.640882452443126,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 32,
+          "latency_seconds": 1.3535873740911484,
+          "accepted_output_tokens_per_second": 23.640882452443126,
+          "small_forward_tokens": 63,
+          "large_forward_tokens": 63,
+          "large_route_count": 14,
+          "large_catchup_tokens": 49,
+          "large_forward_tokens_per_accepted_output_token": 1.96875,
+          "peak_small_used_blocks": 4,
+          "peak_large_used_blocks": 4,
+          "peak_gpu_allocated_gib": 6.34590482711792,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 32,
+      "output_length": 32,
+      "batch_size": 2,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.534233957529068,
+      "latency_seconds_p50": 1.534233957529068,
+      "latency_seconds_p95": 1.534233957529068,
+      "accepted_output_tokens_per_second_mean": 41.714628780003025,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 64,
+          "latency_seconds": 1.534233957529068,
+          "accepted_output_tokens_per_second": 41.714628780003025,
+          "small_forward_tokens": 126,
+          "large_forward_tokens": 123,
+          "large_route_count": 25,
+          "large_catchup_tokens": 98,
+          "large_forward_tokens_per_accepted_output_token": 1.921875,
+          "peak_small_used_blocks": 8,
+          "peak_large_used_blocks": 8,
+          "peak_gpu_allocated_gib": 6.348234176635742,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 32,
+      "output_length": 32,
+      "batch_size": 4,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.9446941390633583,
+      "latency_seconds_p50": 1.9446941390633583,
+      "latency_seconds_p95": 1.9446941390633583,
+      "accepted_output_tokens_per_second_mean": 65.82011917907556,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 128,
+          "latency_seconds": 1.9446941390633583,
+          "accepted_output_tokens_per_second": 65.82011917907556,
+          "small_forward_tokens": 252,
+          "large_forward_tokens": 247,
+          "large_route_count": 62,
+          "large_catchup_tokens": 185,
+          "large_forward_tokens_per_accepted_output_token": 1.9296875,
+          "peak_small_used_blocks": 16,
+          "peak_large_used_blocks": 16,
+          "peak_gpu_allocated_gib": 6.349333763122559,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 64,
+      "output_length": 16,
+      "batch_size": 1,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 0.7472319304943085,
+      "latency_seconds_p50": 0.7472319304943085,
+      "latency_seconds_p95": 0.7472319304943085,
+      "accepted_output_tokens_per_second_mean": 21.412361205463593,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 16,
+          "latency_seconds": 0.7472319304943085,
+          "accepted_output_tokens_per_second": 21.412361205463593,
+          "small_forward_tokens": 79,
+          "large_forward_tokens": 78,
+          "large_route_count": 9,
+          "large_catchup_tokens": 69,
+          "large_forward_tokens_per_accepted_output_token": 4.875,
+          "peak_small_used_blocks": 5,
+          "peak_large_used_blocks": 5,
+          "peak_gpu_allocated_gib": 6.347949981689453,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 64,
+      "output_length": 16,
+      "batch_size": 2,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 0.8058571442961693,
+      "latency_seconds_p50": 0.8058571442961693,
+      "latency_seconds_p95": 0.8058571442961693,
+      "accepted_output_tokens_per_second_mean": 39.70927133486991,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 32,
+          "latency_seconds": 0.8058571442961693,
+          "accepted_output_tokens_per_second": 39.70927133486991,
+          "small_forward_tokens": 158,
+          "large_forward_tokens": 156,
+          "large_route_count": 15,
+          "large_catchup_tokens": 141,
+          "large_forward_tokens_per_accepted_output_token": 4.875,
+          "peak_small_used_blocks": 10,
+          "peak_large_used_blocks": 10,
+          "peak_gpu_allocated_gib": 6.3520989418029785,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 64,
+      "output_length": 16,
+      "batch_size": 4,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 0.9579269513487816,
+      "latency_seconds_p50": 0.9579269513487816,
+      "latency_seconds_p95": 0.9579269513487816,
+      "accepted_output_tokens_per_second_mean": 66.8109399259376,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 64,
+          "latency_seconds": 0.9579269513487816,
+          "accepted_output_tokens_per_second": 66.8109399259376,
+          "small_forward_tokens": 316,
+          "large_forward_tokens": 302,
+          "large_route_count": 30,
+          "large_catchup_tokens": 272,
+          "large_forward_tokens_per_accepted_output_token": 4.71875,
+          "peak_small_used_blocks": 20,
+          "peak_large_used_blocks": 20,
+          "peak_gpu_allocated_gib": 6.356905937194824,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 64,
+      "output_length": 32,
+      "batch_size": 1,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.2047712951898575,
+      "latency_seconds_p50": 1.2047712951898575,
+      "latency_seconds_p95": 1.2047712951898575,
+      "accepted_output_tokens_per_second_mean": 26.561057793925265,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 32,
+          "latency_seconds": 1.2047712951898575,
+          "accepted_output_tokens_per_second": 26.561057793925265,
+          "small_forward_tokens": 95,
+          "large_forward_tokens": 91,
+          "large_route_count": 10,
+          "large_catchup_tokens": 81,
+          "large_forward_tokens_per_accepted_output_token": 2.84375,
+          "peak_small_used_blocks": 6,
+          "peak_large_used_blocks": 6,
+          "peak_gpu_allocated_gib": 6.347979545593262,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 64,
+      "output_length": 32,
+      "batch_size": 2,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.948329396545887,
+      "latency_seconds_p50": 1.948329396545887,
+      "latency_seconds_p95": 1.948329396545887,
+      "accepted_output_tokens_per_second_mean": 32.84865491095241,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 64,
+          "latency_seconds": 1.948329396545887,
+          "accepted_output_tokens_per_second": 32.84865491095241,
+          "small_forward_tokens": 190,
+          "large_forward_tokens": 189,
+          "large_route_count": 34,
+          "large_catchup_tokens": 155,
+          "large_forward_tokens_per_accepted_output_token": 2.953125,
+          "peak_small_used_blocks": 12,
+          "peak_large_used_blocks": 12,
+          "peak_gpu_allocated_gib": 6.35218620300293,
+          "peak_gpu_reserved_gib": 6.57421875
+        }
+      ]
+    },
+    {
+      "prompt_length": 64,
+      "output_length": 32,
+      "batch_size": 4,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.8350792825222015,
+      "latency_seconds_p50": 1.8350792825222015,
+      "latency_seconds_p95": 1.8350792825222015,
+      "accepted_output_tokens_per_second_mean": 69.75175471659841,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 128,
+          "latency_seconds": 1.8350792825222015,
+          "accepted_output_tokens_per_second": 69.75175471659841,
+          "small_forward_tokens": 380,
+          "large_forward_tokens": 376,
+          "large_route_count": 55,
+          "large_catchup_tokens": 321,
+          "large_forward_tokens_per_accepted_output_token": 2.9375,
+          "peak_small_used_blocks": 24,
+          "peak_large_used_blocks": 24,
+          "peak_gpu_allocated_gib": 6.360870361328125,
+          "peak_gpu_reserved_gib": 6.576171875
+        }
+      ]
+    },
+    {
+      "prompt_length": 128,
+      "output_length": 16,
+      "batch_size": 1,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 0.6769745722413063,
+      "latency_seconds_p50": 0.6769745722413063,
+      "latency_seconds_p95": 0.6769745722413063,
+      "accepted_output_tokens_per_second_mean": 23.634565692811325,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 16,
+          "latency_seconds": 0.6769745722413063,
+          "accepted_output_tokens_per_second": 23.634565692811325,
+          "small_forward_tokens": 143,
+          "large_forward_tokens": 143,
+          "large_route_count": 8,
+          "large_catchup_tokens": 135,
+          "large_forward_tokens_per_accepted_output_token": 8.9375,
+          "peak_small_used_blocks": 9,
+          "peak_large_used_blocks": 9,
+          "peak_gpu_allocated_gib": 6.351902008056641,
+          "peak_gpu_reserved_gib": 6.576171875
+        }
+      ]
+    },
+    {
+      "prompt_length": 128,
+      "output_length": 16,
+      "batch_size": 2,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 0.7739746943116188,
+      "latency_seconds_p50": 0.7739746943116188,
+      "latency_seconds_p95": 0.7739746943116188,
+      "accepted_output_tokens_per_second_mean": 41.34502101320139,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 32,
+          "latency_seconds": 0.7739746943116188,
+          "accepted_output_tokens_per_second": 41.34502101320139,
+          "small_forward_tokens": 286,
+          "large_forward_tokens": 286,
+          "large_route_count": 12,
+          "large_catchup_tokens": 274,
+          "large_forward_tokens_per_accepted_output_token": 8.9375,
+          "peak_small_used_blocks": 18,
+          "peak_large_used_blocks": 18,
+          "peak_gpu_allocated_gib": 6.352399826049805,
+          "peak_gpu_reserved_gib": 6.576171875
+        }
+      ]
+    },
+    {
+      "prompt_length": 128,
+      "output_length": 16,
+      "batch_size": 4,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.0450707972049713,
+      "latency_seconds_p50": 1.0450707972049713,
+      "latency_seconds_p95": 1.0450707972049713,
+      "accepted_output_tokens_per_second_mean": 61.23987022809095,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 64,
+          "latency_seconds": 1.0450707972049713,
+          "accepted_output_tokens_per_second": 61.23987022809095,
+          "small_forward_tokens": 572,
+          "large_forward_tokens": 565,
+          "large_route_count": 36,
+          "large_catchup_tokens": 529,
+          "large_forward_tokens_per_accepted_output_token": 8.828125,
+          "peak_small_used_blocks": 36,
+          "peak_large_used_blocks": 36,
+          "peak_gpu_allocated_gib": 6.360471248626709,
+          "peak_gpu_reserved_gib": 6.576171875
+        }
+      ]
+    },
+    {
+      "prompt_length": 128,
+      "output_length": 32,
+      "batch_size": 1,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.3435356989502907,
+      "latency_seconds_p50": 1.3435356989502907,
+      "latency_seconds_p95": 1.3435356989502907,
+      "accepted_output_tokens_per_second_mean": 23.81775193990135,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 32,
+          "latency_seconds": 1.3435356989502907,
+          "accepted_output_tokens_per_second": 23.81775193990135,
+          "small_forward_tokens": 159,
+          "large_forward_tokens": 157,
+          "large_route_count": 15,
+          "large_catchup_tokens": 142,
+          "large_forward_tokens_per_accepted_output_token": 4.90625,
+          "peak_small_used_blocks": 10,
+          "peak_large_used_blocks": 10,
+          "peak_gpu_allocated_gib": 6.351902008056641,
+          "peak_gpu_reserved_gib": 6.576171875
+        }
+      ]
+    },
+    {
+      "prompt_length": 128,
+      "output_length": 32,
+      "batch_size": 2,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.7096576914191246,
+      "latency_seconds_p50": 1.7096576914191246,
+      "latency_seconds_p95": 1.7096576914191246,
+      "accepted_output_tokens_per_second_mean": 37.43439421892457,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 64,
+          "latency_seconds": 1.7096576914191246,
+          "accepted_output_tokens_per_second": 37.43439421892457,
+          "small_forward_tokens": 318,
+          "large_forward_tokens": 314,
+          "large_route_count": 34,
+          "large_catchup_tokens": 280,
+          "large_forward_tokens_per_accepted_output_token": 4.90625,
+          "peak_small_used_blocks": 20,
+          "peak_large_used_blocks": 20,
+          "peak_gpu_allocated_gib": 6.352399826049805,
+          "peak_gpu_reserved_gib": 6.576171875
+        }
+      ]
+    },
+    {
+      "prompt_length": 128,
+      "output_length": 32,
+      "batch_size": 4,
+      "p_large": 0.5,
+      "route_pattern": "random",
+      "latency_seconds_mean": 1.9786503165960312,
+      "latency_seconds_p50": 1.9786503165960312,
+      "latency_seconds_p95": 1.9786503165960312,
+      "accepted_output_tokens_per_second_mean": 64.6905615036641,
+      "repeats": [
+        {
+          "repeat": 0,
+          "accepted_output_tokens": 128,
+          "latency_seconds": 1.9786503165960312,
+          "accepted_output_tokens_per_second": 64.6905615036641,
+          "small_forward_tokens": 636,
+          "large_forward_tokens": 632,
+          "large_route_count": 66,
+          "large_catchup_tokens": 566,
+          "large_forward_tokens_per_accepted_output_token": 4.9375,
+          "peak_small_used_blocks": 40,
+          "peak_large_used_blocks": 40,
+          "peak_gpu_allocated_gib": 6.360273361206055,
+          "peak_gpu_reserved_gib": 6.576171875
+        }
+      ]
+    }
+  ]
+}

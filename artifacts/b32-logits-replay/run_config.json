@@ -1,0 +1,97 @@
+{
+  "streams": [
+    "time",
+    "diag"
+  ],
+  "trace_sha256": "393281ea1a8eee5613d4533be07d193fe1043cb3e8d8190f429e04df83ad4586",
+  "questions": "GSM8K train JSONL first 100 rows, in order; user message appends newline + Give only the numerical answer.",
+  "questions_source_sha256": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465",
+  "small_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "small_safetensors_sha256": "fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe",
+  "small_config_sha256": "18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45",
+  "large_model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "large_safetensors_sha256": "dd924a11b4c220f385b51ffa522daea7c9f3d850e31b162bb5661df483c6d3ee",
+  "large_config_sha256": "98d2ff8cc47488d08a2b0b3acf4eb99ef210779b42bd48605f6b8e36acdbf670",
+  "tokenizer_sha256_both": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+  "tokenizer_config_sha256_both": "5b5d4f65d0acd3b2d56a35b56d374a36cbc1c8fa5cf3b3febbbfabf22f359583",
+  "router": {
+    "class": "vllm_dual.router.DeterministicRouter",
+    "checkpoint": null,
+    "features": [
+      "request_id",
+      "output_index"
+    ],
+    "p_large": 0.1,
+    "seed": 17
+  },
+  "fork_checkout": "18df3cef8f61ce371d1958374927b48aba7eafe2 + working tree / remote SM70 build patches",
+  "worker_sha256": "3c2c4e9564a08dec6f4a0b9136850c0eecc09912049571e45f0c5e5273d85c7e",
+  "scheduler_sha256": "4c49a521192a815b98058c1d368a47aae7649478cb02d7c34e9a57970848d9b8",
+  "router_sha256": "cebe353ddc22ebf648ff7337f32da3d96eb5508ebbe8554ec383f0e0bcfafab1",
+  "gpu": "1 x Tesla V100-PCIE-32GB",
+  "driver": "535.54.03",
+  "torch": "2.9.0",
+  "triton": "3.5.0",
+  "transformers": "4.57.6",
+  "dtype": "float16",
+  "quantization": null,
+  "attention": "TRITON_ATTN",
+  "tp": 1,
+  "pp": 1,
+  "communication": "in-process V1 UniProcExecutor on one GPU; fixed host scheduling with native GPUModelRunner and compact large batches",
+  "graph": "FULL_AND_PIECEWISE, enforce_eager=False; per-call dispatch captured during diag",
+  "block_size": 16,
+  "max_model_len": 512,
+  "max_num_seqs": 32,
+  "max_num_batched_tokens": 1024,
+  "split_cache_mib": [
+    1120,
+    1440
+  ],
+  "single_cache_mib": 2560,
+  "sampling": {
+    "temperature": 0,
+    "generation_config": "vllm",
+    "max_tokens": 48,
+    "seed": 17
+  },
+  "batch_sizes": [
+    32
+  ],
+  "sizes_include_tail": true,
+  "repeats": 5,
+  "speed_targets": [
+    1,
+    1.2
+  ],
+  "cohorts": "contiguous trace order; groups[B]=[cohort_id,slot_order]; route applied per output, first output excluded",
+  "decode_scheduling": "one step per active request per round, same-round compact large sub-batch. No cross-step batch gate or admission queue. Slot order in trace is logical; native runners map physical rows by request ID.",
+  "clock": "time.perf_counter on replay process; timestamp at engine-step token commit; synchronize CUDA before/after cohort",
+  "timing": "decode wall only; warmup is a complete untimed pass of each B; model startup, full-prefix KV priming, prompt prefill and teardown outside decode",
+  "free_kv": "teacher-force directly into final physical pages on GPU, forget temporary requests without clearing pages, run prompt prefill, expose history through num_computed_tokens. Identical reserved block IDs in exact. No KV transfer in decode.",
+  "preemptions": "0 by fixed, exclusive, capacity-checked cohort page assignment",
+  "workload_scope": "recorded by current deterministic online router on configured Qwen2.5 pair; 85 length stops at 48, 15 natural stops; fixed replay does not measure quality or online queuing",
+  "previous_remote_core_sha256": {
+    "vllm/v1/worker/gpu_model_runner.py": "623d292fb8c5d79e4151262ffe37a78bebe35676d2a5ae7a0753f0a2ab9fd1c0",
+    "vllm/v1/core/sched/scheduler.py": "bd91a6c35377bfa5ec0379ce71e21508f5463c005bb2dcb9c0e969146493bc28",
+    "vllm/v1/attention/backends/triton_attn.py": "4a8ec9489e5738d026a7a0d20c58e077bfa0bf104af00539eaebffee11c10bad",
+    "vllm/_C.abi3.so": "cbde7e230efb0e5d5e634e186bea016235e3bbae868cb6f0a08a8c6be10eb004"
+  },
+  "previous_run_id": "free-kv-v1-v100-20261118",
+  "run_id": "b32-logits-replay",
+  "code_sha256": {
+    "benchmarks/free_kv_replay.py": "52d6a8ad5f8bf1e8adf8910d9d0ee50be085e4e53f4b20cf8148e20ff7871ae6",
+    "benchmarks/b32_logits_replay.py": "cd02d3c2ab2de6a6e651c9b0df4f60aabe09e7d601883999edf9f6334c99701c",
+    "vllm/v1/worker/gpu_model_runner.py": "894de9f97fcd7997f22287ef234afa43cb5ecdbb49c605c3eee976148c9059c2"
+  },
+  "layout": "native FP16 [k,151936], stride (151936,1), GPU tensor per nonempty call in actual F row order; warmed iterator consumed once per call",
+  "previous_results": "free-kv-v1-v100-20261118",
+  "logits_payload_peak_bytes": 38287872,
+  "stages": {
+    "phase1": "independent model process for each measurement, one full cohort sweep for warmup; rotate L/F/O left by repeat modulo 3",
+    "diagnostic": "separate sweep per mode; O heavy_dispatch describes the prepared shape, decoder graph bypassed",
+    "queue": "conditional, paired alternation, target=4, 12 ms deadline checked at scheduler boundaries, immediate control uses the same ready-queue driver"
+  },
+  "oracle_peak_allocated_bytes": 6966819840,
+  "F_peak_allocated_bytes": 6928704512
+}

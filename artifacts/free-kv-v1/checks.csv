@@ -1,0 +1,7 @@
+kind,n,tolerance,max_abs,worst_request,worst_pos,top1,passed,mode,logical_gap,actual_history,current_positions,invariants,forced_fixture_router_disagreements
+native_decode_vs_teacher,7,0.041015625,0.041015625,0,81,1.0,True,routed_exact,6,6,7,True,7
+native_decode_vs_routed_exact,7,0.041015625,0.0390625,0,81,1.0,True,routed_exact,6,6,7,True,7
+native_decode_vs_teacher,7,0.041015625,0.041015625,0,81,1.0,True,routed_free_kv,6,0,7,True,7
+native_decode_vs_routed_free_kv,7,0.041015625,0.041015625,0,81,1.0,True,routed_free_kv,6,0,7,True,7
+exact_vs_free,7,0.08203125,0.0322265625,0,81,1.0,True,routed_free_kv,6,0,7,True,7
+free_vs_future_slots_changed,7,0,0.0,2,96,1.0,True,routed_free_kv,6,0,7,True,7

@@ -1,0 +1,241 @@
+{
+  "width": 4480,
+  "gemm_ops": [
+    [
+      "aten::linear",
+      [
+        [
+          1,
+          1536
+        ],
+        [
+          8960,
+          1536
+        ],
+        []
+      ]
+    ],
+    [
+      "aten::matmul",
+      [
+        [
+          1,
+          1536
+        ],
+        [
+          1536,
+          8960
+        ]
+      ]
+    ],
+    [
+      "aten::mm",
+      [
+        [
+          1,
+          1536
+        ],
+        [
+          1536,
+          8960
+        ]
+      ]
+    ],
+    [
+      "aten::linear",
+      [
+        [
+          1,
+          4480
+        ],
+        [
+          1536,
+          4480
+        ],
+        []
+      ]
+    ],
+    [
+      "aten::matmul",
+      [
+        [
+          1,
+          4480
+        ],
+        [
+          4480,
+          1536
+        ]
+      ]
+    ],
+    [
+      "aten::mm",
+      [
+        [
+          1,
+          4480
+        ],
+        [
+          4480,
+          1536
+        ]
+      ]
+    ],
+    [
+      "aten::linear",
+      [
+        [
+          32,
+          1536
+        ],
+        [
+          8960,
+          1536
+        ],
+        []
+      ]
+    ],
+    [
+      "aten::matmul",
+      [
+        [
+          32,
+          1536
+        ],
+        [
+          1536,
+          8960
+        ]
+      ]
+    ],
+    [
+      "aten::mm",
+      [
+        [
+          32,
+          1536
+        ],
+        [
+          1536,
+          8960
+        ]
+      ]
+    ],
+    [
+      "aten::linear",
+      [
+        [
+          32,
+          4480
+        ],
+        [
+          1536,
+          4480
+        ],
+        []
+      ]
+    ],
+    [
+      "aten::matmul",
+      [
+        [
+          32,
+          4480
+        ],
+        [
+          4480,
+          1536
+        ]
+      ]
+    ],
+    [
+      "aten::mm",
+      [
+        [
+          32,
+          4480
+        ],
+        [
+          4480,
+          1536
+        ]
+      ]
+    ]
+  ],
+  "graph": {
+    "1": [
+      {
+        "active": 1,
+        "mode": "FULL",
+        "padded": 1,
+        "count": 4
+      }
+    ],
+    "32": [
+      {
+        "active": 3,
+        "mode": "FULL",
+        "padded": 4,
+        "count": 45
+      },
+      {
+        "active": 4,
+        "mode": "FULL",
+        "padded": 4,
+        "count": 2
+      },
+      {
+        "active": 25,
+        "mode": "FULL",
+        "padded": 32,
+        "count": 16
+      },
+      {
+        "active": 26,
+        "mode": "FULL",
+        "padded": 32,
+        "count": 17
+      },
+      {
+        "active": 27,
+        "mode": "FULL",
+        "padded": 32,
+        "count": 5
+      },
+      {
+        "active": 28,
+        "mode": "FULL",
+        "padded": 32,
+        "count": 46
+      },
+      {
+        "active": 29,
+        "mode": "FULL",
+        "padded": 32,
+        "count": 45
+      },
+      {
+        "active": 30,
+        "mode": "FULL",
+        "padded": 32,
+        "count": 2
+      },
+      {
+        "active": 31,
+        "mode": "FULL",
+        "padded": 32,
+        "count": 2
+      },
+      {
+        "active": 32,
+        "mode": "FULL",
+        "padded": 32,
+        "count": 8
+      }
+    ]
+  },
+  "all_loaded_layers": 28,
+  "finite_logits_steps": 4,
+  "finite_new_kv_layers": 28,
+  "preemptions": 0
+}

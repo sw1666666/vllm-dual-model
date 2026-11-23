@@ -22,7 +22,7 @@ os.environ.setdefault("VLLM_ATTENTION_BACKEND", "TRITON_ATTN")
 
 from vllm import LLM, SamplingParams  # noqa: E402
 
-from vllm_dual.config import DualModelConfig  # noqa: E402
+from vllm_dual.config import DualModelConfig, add_grpo_threshold_args  # noqa: E402
 from vllm_dual.router import LARGE, SMALL  # noqa: E402
 from vllm_dual.trace import JsonlTraceWriter  # noqa: E402
 
@@ -50,6 +50,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--large-model", required=True)
     parser.add_argument("--mode", choices=("disabled", "sync", "lazy"), default="disabled")
     parser.add_argument("--p-large", type=float, default=0.10)
+    parser.add_argument("--router-checkpoint", help="GRPO switch policy .pt. Lazy routing evaluates the current small hidden state.")
     parser.add_argument("--router-seed", type=int, default=17)
     parser.add_argument("--forced-routes")
     parser.add_argument("--trace-path", type=Path, required=True)
@@ -61,8 +62,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--kv-cache-memory-bytes", type=int)
     parser.add_argument("--small-kv-cache-bytes", type=int, default=1120 << 20)
     parser.add_argument("--large-kv-cache-bytes", type=int, default=1440 << 20)
+    parser.add_argument("--large-min-batch-size", type=int, default=4)
+    parser.add_argument("--large-max-wait-steps", type=int, default=4)
     parser.add_argument("--enable-dual-forward", action="store_true")
+    parser.add_argument(
+        "--enforce-eager",
+        action="store_true",
+        help="Disable CUDA graphs (useful for debugging, slower for steady-state runs).",
+    )
     parser.add_argument("--output-json", type=Path)
+    add_grpo_threshold_args(parser)
     return parser.parse_args()
 
 
@@ -73,10 +82,14 @@ def main() -> None:
         enabled=args.mode != "disabled",
         large_model=args.large_model,
         router_seed=args.router_seed,
+        router_checkpoint=args.router_checkpoint,
+        router_large_threshold=args.router_large_threshold,
         p_large=args.p_large,
         mode=args.mode,
         sync_forward_enabled=args.enable_dual_forward,
         forced_routes=forced_routes,
+        large_min_batch_size=args.large_min_batch_size,
+        large_max_wait_steps=args.large_max_wait_steps,
         small_kv_cache_bytes=args.small_kv_cache_bytes,
         large_kv_cache_bytes=args.large_kv_cache_bytes,
         trace_path=str(args.trace_path),
@@ -87,7 +100,7 @@ def main() -> None:
         scheduler_cls="vllm_dual.scheduler.DualScheduler",
         additional_config={"dual_model": config.to_dict()},
         dtype="half",
-        enforce_eager=True,
+        enforce_eager=args.enforce_eager,
         max_model_len=256,
         max_num_seqs=args.max_num_seqs,
         max_num_batched_tokens=256,
@@ -162,6 +175,9 @@ def main() -> None:
         ],
         "forced_routes": forced_routes,
     }
+    if args.router_checkpoint:
+        result["router_checkpoint"] = args.router_checkpoint
+        result["router_large_threshold"] = args.router_large_threshold
     result["large_model_forward_enabled"] = args.enable_dual_forward
     if not args.enable_dual_forward:
         JsonlTraceWriter(args.trace_path).write(result)

@@ -9,6 +9,7 @@ from vllm.logger import init_logger
 from vllm.v1.core.kv_cache_manager import KVCacheManager
 from vllm.v1.core.sched.scheduler import Scheduler
 
+from .batch_gate import LargeBatchGate
 from .config import DualModelConfig
 from .router import LARGE, DeterministicRouter
 from .request_view import RequestIdView, RequestProgressView
@@ -31,6 +32,10 @@ class DualScheduler(Scheduler):
             forced_routes=self.dual_model_config.forced_routes,
         )
         self.large_num_computed_tokens: dict[str, int] = {}
+        self.large_batch_gate = LargeBatchGate(
+            min_batch_size=self.dual_model_config.large_min_batch_size,
+            max_wait_steps=self.dual_model_config.large_max_wait_steps,
+        )
         large_hf_config = AutoConfig.from_pretrained(
             self.dual_model_config.large_model
         )
@@ -125,7 +130,7 @@ class DualScheduler(Scheduler):
         )
 
     def schedule(self):
-        output = super().schedule()
+        output = self._schedule_with_large_batch_gate()
         if not (
             self.dual_model_config.enabled
             and self.dual_model_config.sync_forward_enabled
@@ -135,6 +140,7 @@ class DualScheduler(Scheduler):
         for finished_req_id in output.finished_req_ids:
             self.large_kv_cache_manager.free(RequestIdView(finished_req_id))
             self.large_num_computed_tokens.pop(finished_req_id, None)
+        self.large_batch_gate.discard(set(output.finished_req_ids))
         if output.finished_req_ids:
             self.dual_cleanup_count += len(output.finished_req_ids)
             if self.dual_cleanup_count % 25 == 0:
@@ -151,18 +157,23 @@ class DualScheduler(Scheduler):
             request = self.requests[req_id]
             history_len = len(request.all_token_ids)
             output_index = request.num_output_tokens
-            route = self.dual_router.route(req_id, output_index)
+            # GRPO decides on this step's small hidden state in the worker.
+            # Reserve pages up to the public history; reservation does not
+            # imply that the large runner has populated those pages.
+            learned = bool(self.dual_model_config.router_checkpoint)
+            route = None if learned else self.dual_router.route(req_id, output_index)
             large_before = self.large_num_computed_tokens.get(req_id, 0)
             large_delta = (
                 history_len - large_before
                 if sync_large or route == LARGE
                 else 0
             )
-            if large_delta:
+            reservation = history_len if learned else large_delta
+            if reservation:
                 large_view = RequestProgressView(request, large_before)
                 new_large_blocks = self.large_kv_cache_manager.allocate_slots(
                     large_view,
-                    large_delta,
+                    reservation,
                 )
                 if new_large_blocks is None:
                     free_blocks = (
@@ -170,7 +181,7 @@ class DualScheduler(Scheduler):
                     )
                     raise RuntimeError(
                         "large KV pool exhausted: "
-                        f"request_id={req_id} delta={large_delta} "
+                        f"request_id={req_id} reservation={reservation} "
                         f"free_blocks={free_blocks}"
                     )
                 large_new_block_ids = new_large_blocks.get_block_ids()
@@ -204,6 +215,56 @@ class DualScheduler(Scheduler):
                 ),
             )
         output.dual_model_metadata = metadata
+        return output
+
+    def _schedule_with_large_batch_gate(self):
+        if (
+            self.dual_model_config.mode != "lazy"
+            or not self.dual_model_config.sync_forward_enabled
+            or self.dual_model_config.router_checkpoint
+            or self.dual_model_config.large_min_batch_size == 1
+        ):
+            return super().schedule()
+
+        original_running = list(self.running)
+        running_ids = [request.request_id for request in original_running]
+        large_ids = {
+            request.request_id
+            for request in original_running
+            if self.dual_router.route(
+                request.request_id, request.num_output_tokens
+            ) == LARGE
+        }
+        selected_ids = self.large_batch_gate.select(running_ids, large_ids)
+        if selected_ids is None or selected_ids == set(running_ids):
+            return super().schedule()
+
+        withheld_ids = set(running_ids) - selected_ids
+        self.running = [
+            request
+            for request in original_running
+            if request.request_id in selected_ids
+        ]
+        original_max_running = self.max_num_running_reqs
+        # Keep the WAITING queue closed while RUNNING is partitioned. New
+        # admissions here could overflow max_num_seqs when withheld requests
+        # are restored after the scheduling pass.
+        self.max_num_running_reqs = len(self.running)
+        try:
+            output = super().schedule()
+            retained = {request.request_id: request for request in self.running}
+        finally:
+            self.max_num_running_reqs = original_max_running
+
+        restored = []
+        for request in original_running:
+            req_id = request.request_id
+            if req_id in withheld_ids:
+                restored.append(request)
+            elif req_id in retained:
+                restored.append(retained.pop(req_id))
+        restored.extend(retained.values())
+        self.running = restored
         return output
 
     def update_from_output(self, scheduler_output, model_runner_output):

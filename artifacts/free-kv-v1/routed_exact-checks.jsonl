@@ -1,0 +1,2 @@
+{"kind":"native_decode_vs_teacher","n":7,"tolerance":0.041015625,"max_abs":0.041015625,"worst_request":"0","worst_pos":81,"top1":1.0,"passed":true,"mode":"routed_exact","logical_gap":6,"actual_history":6,"current_positions":7,"invariants":true,"forced_fixture_router_disagreements":7}
+{"kind":"native_decode_vs_routed_exact","n":7,"tolerance":0.041015625,"max_abs":0.0390625,"worst_request":"0","worst_pos":81,"top1":1.0,"passed":true,"mode":"routed_exact","logical_gap":6,"actual_history":6,"current_positions":7,"invariants":true,"forced_fixture_router_disagreements":7}

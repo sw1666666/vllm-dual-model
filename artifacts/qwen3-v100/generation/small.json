@@ -1,0 +1,328 @@
+{
+  "mode": "small",
+  "results": [
+    {
+      "batch_size": 1,
+      "prompt_tokens_per_request": 128,
+      "output_tokens_per_request": 32,
+      "latency_seconds_mean": 0.17468293259541193,
+      "output_tokens_per_second_mean": 183.20393354831592,
+      "peak_gpu_allocated_gib_max": 3.664189338684082,
+      "peak_gpu_reserved_gib_max": 4.00390625,
+      "repeats": [
+        {
+          "request_ids": [
+            "1"
+          ],
+          "latency_seconds": 0.17662598192691803,
+          "output_tokens": 32,
+          "output_tokens_per_second": 181.17379816317475,
+          "peak_gpu_allocated_gib": 3.664189338684082,
+          "peak_gpu_reserved_gib": 4.00390625
+        },
+        {
+          "request_ids": [
+            "2"
+          ],
+          "latency_seconds": 0.17465392500162125,
+          "output_tokens": 32,
+          "output_tokens_per_second": 183.21947244931917,
+          "peak_gpu_allocated_gib": 3.664189338684082,
+          "peak_gpu_reserved_gib": 4.00390625
+        },
+        {
+          "request_ids": [
+            "3"
+          ],
+          "latency_seconds": 0.17276889085769653,
+          "output_tokens": 32,
+          "output_tokens_per_second": 185.2185300324538,
+          "peak_gpu_allocated_gib": 3.664189338684082,
+          "peak_gpu_reserved_gib": 4.00390625
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "prompt_tokens_per_request": 128,
+      "output_tokens_per_request": 32,
+      "latency_seconds_mean": 0.30650069067875546,
+      "output_tokens_per_second_mean": 835.234988575896,
+      "peak_gpu_allocated_gib_max": 3.674199104309082,
+      "peak_gpu_reserved_gib_max": 4.005859375,
+      "repeats": [
+        {
+          "request_ids": [
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19"
+          ],
+          "latency_seconds": 0.30624010413885117,
+          "output_tokens": 256,
+          "output_tokens_per_second": 835.9453792633509,
+          "peak_gpu_allocated_gib": 3.674199104309082,
+          "peak_gpu_reserved_gib": 4.005859375
+        },
+        {
+          "request_ids": [
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+            "26",
+            "27"
+          ],
+          "latency_seconds": 0.30669867992401123,
+          "output_tokens": 256,
+          "output_tokens_per_second": 834.6954739532217,
+          "peak_gpu_allocated_gib": 3.674199104309082,
+          "peak_gpu_reserved_gib": 4.005859375
+        },
+        {
+          "request_ids": [
+            "28",
+            "29",
+            "30",
+            "31",
+            "32",
+            "33",
+            "34",
+            "35"
+          ],
+          "latency_seconds": 0.30656328797340393,
+          "output_tokens": 256,
+          "output_tokens_per_second": 835.0641125111152,
+          "peak_gpu_allocated_gib": 3.674199104309082,
+          "peak_gpu_reserved_gib": 4.005859375
+        }
+      ]
+    },
+    {
+      "batch_size": 16,
+      "prompt_tokens_per_request": 128,
+      "output_tokens_per_request": 32,
+      "latency_seconds_mean": 0.43965674688418704,
+      "output_tokens_per_second_mean": 1164.736508013205,
+      "peak_gpu_allocated_gib_max": 3.6749043464660645,
+      "peak_gpu_reserved_gib_max": 4.005859375,
+      "repeats": [
+        {
+          "request_ids": [
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60",
+            "61",
+            "62",
+            "63",
+            "64",
+            "65",
+            "66",
+            "67"
+          ],
+          "latency_seconds": 0.43350204080343246,
+          "output_tokens": 512,
+          "output_tokens_per_second": 1181.0786381791493,
+          "peak_gpu_allocated_gib": 3.6749043464660645,
+          "peak_gpu_reserved_gib": 4.005859375
+        },
+        {
+          "request_ids": [
+            "68",
+            "69",
+            "70",
+            "71",
+            "72",
+            "73",
+            "74",
+            "75",
+            "76",
+            "77",
+            "78",
+            "79",
+            "80",
+            "81",
+            "82",
+            "83"
+          ],
+          "latency_seconds": 0.4471508488059044,
+          "output_tokens": 512,
+          "output_tokens_per_second": 1145.02745855738,
+          "peak_gpu_allocated_gib": 3.6749043464660645,
+          "peak_gpu_reserved_gib": 4.005859375
+        },
+        {
+          "request_ids": [
+            "84",
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91",
+            "92",
+            "93",
+            "94",
+            "95",
+            "96",
+            "97",
+            "98",
+            "99"
+          ],
+          "latency_seconds": 0.43831735104322433,
+          "output_tokens": 512,
+          "output_tokens_per_second": 1168.1034273030855,
+          "peak_gpu_allocated_gib": 3.6749043464660645,
+          "peak_gpu_reserved_gib": 4.005859375
+        }
+      ]
+    },
+    {
+      "batch_size": 32,
+      "prompt_tokens_per_request": 128,
+      "output_tokens_per_request": 32,
+      "latency_seconds_mean": 0.769881491859754,
+      "output_tokens_per_second_mean": 1330.0905546388738,
+      "peak_gpu_allocated_gib_max": 3.6880650520324707,
+      "peak_gpu_reserved_gib_max": 4.005859375,
+      "repeats": [
+        {
+          "request_ids": [
+            "132",
+            "133",
+            "134",
+            "135",
+            "136",
+            "137",
+            "138",
+            "139",
+            "140",
+            "141",
+            "142",
+            "143",
+            "144",
+            "145",
+            "146",
+            "147",
+            "148",
+            "149",
+            "150",
+            "151",
+            "152",
+            "153",
+            "154",
+            "155",
+            "156",
+            "157",
+            "158",
+            "159",
+            "160",
+            "161",
+            "162",
+            "163"
+          ],
+          "latency_seconds": 0.7699816673994064,
+          "output_tokens": 1024,
+          "output_tokens_per_second": 1329.901792932985,
+          "peak_gpu_allocated_gib": 3.6880650520324707,
+          "peak_gpu_reserved_gib": 4.005859375
+        },
+        {
+          "request_ids": [
+            "164",
+            "165",
+            "166",
+            "167",
+            "168",
+            "169",
+            "170",
+            "171",
+            "172",
+            "173",
+            "174",
+            "175",
+            "176",
+            "177",
+            "178",
+            "179",
+            "180",
+            "181",
+            "182",
+            "183",
+            "184",
+            "185",
+            "186",
+            "187",
+            "188",
+            "189",
+            "190",
+            "191",
+            "192",
+            "193",
+            "194",
+            "195"
+          ],
+          "latency_seconds": 0.7665915936231613,
+          "output_tokens": 1024,
+          "output_tokens_per_second": 1335.7829756001404,
+          "peak_gpu_allocated_gib": 3.6880650520324707,
+          "peak_gpu_reserved_gib": 4.005859375
+        },
+        {
+          "request_ids": [
+            "196",
+            "197",
+            "198",
+            "199",
+            "200",
+            "201",
+            "202",
+            "203",
+            "204",
+            "205",
+            "206",
+            "207",
+            "208",
+            "209",
+            "210",
+            "211",
+            "212",
+            "213",
+            "214",
+            "215",
+            "216",
+            "217",
+            "218",
+            "219",
+            "220",
+            "221",
+            "222",
+            "223",
+            "224",
+            "225",
+            "226",
+            "227"
+          ],
+          "latency_seconds": 0.773071214556694,
+          "output_tokens": 1024,
+          "output_tokens_per_second": 1324.586895383496,
+          "peak_gpu_allocated_gib": 3.6880650520324707,
+          "peak_gpu_reserved_gib": 4.005859375
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+mode,passed,N,steps,heavy_rows,native_calls,native_rows,catchup,ordered_rows_and_positions,stop_steps_and_active_ids,samples_match,max_abs,top1,worst_request,worst_pos,max_buffer_bytes
+routed_free_kv,True,4091,188,384,150,384,0,True,True,4091,0.0,1,31,99,0
+routed_replay_logits,True,4091,188,384,0,0,0,True,True,4091,0.0,1,31,99,38287872

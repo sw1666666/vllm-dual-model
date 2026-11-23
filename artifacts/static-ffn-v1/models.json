@@ -1,0 +1,20 @@
+{
+  "8960": {
+    "path": "/root/autodl-tmp/models/Qwen2.5-1.5B-Instruct",
+    "weights": "dd924a11b4c220f385b51ffa522daea7c9f3d850e31b162bb5661df483c6d3ee",
+    "config": "98d2ff8cc47488d08a2b0b3acf4eb99ef210779b42bd48605f6b8e36acdbf670",
+    "tokenizer": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+  },
+  "4480": {
+    "path": "/root/autodl-tmp/models/Qwen2.5-1.5B-Instruct-static-ffn-4480",
+    "weights": "8fd34ae128b7c61bf13279464f8f780e5f09ca1993e58391ab190fc864971895",
+    "config": "a65aa95e7fa68b116c428305dbd25d30f0c9067c0450f1dc56c48c5c0e650ea2",
+    "tokenizer": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+  },
+  "2304": {
+    "path": "/root/autodl-tmp/models/Qwen2.5-1.5B-Instruct-static-ffn-2304",
+    "weights": "9aabdab99a90f28897f94c84a602913fd3a3ccb039993935c9fc6b41d9631b74",
+    "config": "7f38f174fbd7c24bc8d64e0da23ec16d225ac8bc54468533704ff11504873ca4",
+    "tokenizer": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+  }
+}

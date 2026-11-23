@@ -1,0 +1,41 @@
+{
+  "gpu": "1 x Tesla V100-PCIE-32GB",
+  "source": "Qwen/Qwen2.5-1.5B-Instruct",
+  "dtype": "float16",
+  "attention": "TRITON_ATTN",
+  "trace_sha256": "393281ea1a8eee5613d4533be07d193fe1043cb3e8d8190f429e04df83ad4586",
+  "driver": "535.54.03",
+  "fork_checkout": "18df3cef8f61ce371d1958374927b48aba7eafe2 + working tree / remote SM70 build patches",
+  "graph": "FULL_AND_PIECEWISE, enforce_eager=False; per-call dispatch captured during diag",
+  "sampling": {
+    "temperature": 0,
+    "generation_config": "vllm",
+    "max_tokens": 48,
+    "seed": 17
+  },
+  "block_size": 16,
+  "tp": 1,
+  "pp": 1,
+  "run": "mixed-ffn-v1",
+  "native_model": "original Instruct checkpoint; same stock compiled prefill and one KV pool for all modes",
+  "orders": [
+    "FCWM",
+    "CWMF",
+    "WMFC",
+    "MFCW",
+    "FCWM"
+  ],
+  "B": 32,
+  "channels": [
+    2304,
+    6656
+  ],
+  "layers": 28,
+  "preemptions": 0,
+  "backend": "stock vLLM runner, FULL decoder CUDA graphs; native attention and non-FFN modules shared, split backbone separately compiled",
+  "source_hashes": {
+    "benchmarks/mixed_ffn_engine.py": "7ba907d292c25a92a36cbfd3767c694e38f0962a8010eede65c1300b198931de",
+    "benchmarks/mixed_ffn_replay.py": "0d772afacd42b4d6511e160f7821eea62d51f323465e7cf5c402ad5f420ca30a",
+    "benchmarks/free_kv_replay.py": "52d6a8ad5f8bf1e8adf8910d9d0ee50be085e4e53f4b20cf8148e20ff7871ae6"
+  }
+}

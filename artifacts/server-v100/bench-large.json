@@ -1,0 +1,101 @@
+{
+  "mode": "large",
+  "results": [
+    {
+      "batch_size": 1,
+      "prompt_tokens_per_request": 128,
+      "output_tokens_per_request": 32,
+      "latency_seconds_mean": 1.0433461094896,
+      "output_tokens_per_second_mean": 30.724899739651182,
+      "peak_gpu_allocated_gib_max": 5.421462535858154,
+      "peak_gpu_reserved_gib_max": 5.58203125,
+      "repeats": [
+        {
+          "latency_seconds": 1.1055499538779259,
+          "output_tokens": 32,
+          "output_tokens_per_second": 28.94487027723527,
+          "peak_gpu_allocated_gib": 5.421462535858154,
+          "peak_gpu_reserved_gib": 5.58203125
+        },
+        {
+          "latency_seconds": 1.0042151734232903,
+          "output_tokens": 32,
+          "output_tokens_per_second": 31.865680629893816,
+          "peak_gpu_allocated_gib": 5.421462535858154,
+          "peak_gpu_reserved_gib": 5.58203125
+        },
+        {
+          "latency_seconds": 1.0202732011675835,
+          "output_tokens": 32,
+          "output_tokens_per_second": 31.364148311824458,
+          "peak_gpu_allocated_gib": 5.421462535858154,
+          "peak_gpu_reserved_gib": 5.58203125
+        }
+      ]
+    },
+    {
+      "batch_size": 2,
+      "prompt_tokens_per_request": 128,
+      "output_tokens_per_request": 32,
+      "latency_seconds_mean": 1.049364114801089,
+      "output_tokens_per_second_mean": 60.998290256574705,
+      "peak_gpu_allocated_gib_max": 5.429336071014404,
+      "peak_gpu_reserved_gib_max": 5.5859375,
+      "repeats": [
+        {
+          "latency_seconds": 1.0655386820435524,
+          "output_tokens": 64,
+          "output_tokens_per_second": 60.06351630262456,
+          "peak_gpu_allocated_gib": 5.429336071014404,
+          "peak_gpu_reserved_gib": 5.5859375
+        },
+        {
+          "latency_seconds": 1.048146367073059,
+          "output_tokens": 64,
+          "output_tokens_per_second": 61.06017442842408,
+          "peak_gpu_allocated_gib": 5.429336071014404,
+          "peak_gpu_reserved_gib": 5.5859375
+        },
+        {
+          "latency_seconds": 1.0344072952866554,
+          "output_tokens": 64,
+          "output_tokens_per_second": 61.87118003867547,
+          "peak_gpu_allocated_gib": 5.429336071014404,
+          "peak_gpu_reserved_gib": 5.5859375
+        }
+      ]
+    },
+    {
+      "batch_size": 4,
+      "prompt_tokens_per_request": 128,
+      "output_tokens_per_request": 32,
+      "latency_seconds_mean": 1.059255284567674,
+      "output_tokens_per_second_mean": 120.85978740929394,
+      "peak_gpu_allocated_gib_max": 5.445571422576904,
+      "peak_gpu_reserved_gib_max": 5.5859375,
+      "repeats": [
+        {
+          "latency_seconds": 1.0423139333724976,
+          "output_tokens": 128,
+          "output_tokens_per_second": 122.8036927280103,
+          "peak_gpu_allocated_gib": 5.445571422576904,
+          "peak_gpu_reserved_gib": 5.5859375
+        },
+        {
+          "latency_seconds": 1.0596333518624306,
+          "output_tokens": 128,
+          "output_tokens_per_second": 120.79649982234412,
+          "peak_gpu_allocated_gib": 5.445571422576904,
+          "peak_gpu_reserved_gib": 5.5859375
+        },
+        {
+          "latency_seconds": 1.0758185684680939,
+          "output_tokens": 128,
+          "output_tokens_per_second": 118.97916967752742,
+          "peak_gpu_allocated_gib": 5.445571422576904,
+          "peak_gpu_reserved_gib": 5.5859375
+        }
+      ]
+    }
+  ]
+}
