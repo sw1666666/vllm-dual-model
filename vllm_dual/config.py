@@ -54,12 +54,15 @@ class DualModelConfig:
     large_max_wait_steps: int = 1
     small_kv_cache_bytes: int = 1120 << 20
     large_kv_cache_bytes: int = 1440 << 20
-    trace_path: str = "artifacts/traces/dual.jsonl"
+    trace_path: str | None = "artifacts/traces/dual.jsonl"
     router_checkpoint: str | None = None
     router_large_threshold: float = DEFAULT_LARGE_THRESHOLD
+    queue_large: bool = False
 
     def __post_init__(self) -> None:
         validate_large_threshold(self.router_large_threshold)
+        if self.queue_large and not self.router_checkpoint:
+            raise ValueError("Queued large execution requires the online GRPO router")
         if self.router_checkpoint and (
             not self.enabled
             or not self.sync_forward_enabled

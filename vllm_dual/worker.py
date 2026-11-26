@@ -53,6 +53,8 @@ class DualWorker(Worker):
         self.pending_dual_steps: dict[
             str, tuple[StepPlan, DualStepMetadata, list[int]]
         ] = {}
+        self.pending_large: dict[tuple[str, int], tuple[StepPlan, DualStepMetadata, list[int]]] = {}
+        self.pending_small_argmax: dict[tuple[str, int], int] = {}
         self.dual_cleanup_count = 0
         self.dual_trace = JsonlTraceWriter(
             self.dual_model_config.trace_path
@@ -211,7 +213,14 @@ class DualWorker(Worker):
 
     @torch.inference_mode()
     def execute_model(self, scheduler_output):
+        flush = getattr(scheduler_output, "dual_flush", None)
+        if flush:
+            return self._flush_large(scheduler_output, flush)
         for finished_req_id in scheduler_output.finished_req_ids:
+            if self.dual_model_config.queue_large and finished_req_id in self.dual_request_states:
+                key = (finished_req_id, self.dual_request_states[finished_req_id].output_index)
+                self.pending_large.pop(key, None)
+                self.pending_small_argmax.pop(key, None)
             self.dual_request_states.pop(finished_req_id, None)
             if self.grpo_router is not None:
                 self.grpo_router.discard(finished_req_id)
@@ -286,7 +295,7 @@ class DualWorker(Worker):
             if sync_large or scheduled_step.route == LARGE:
                 large_req_ids.append(req_id)
 
-        if not large_req_ids:
+        if not large_req_ids or self.dual_model_config.queue_large:
             return output
         large_scheduler_output = self._make_lazy_large_output(
             scheduler_output, large_req_ids
@@ -300,7 +309,10 @@ class DualWorker(Worker):
         self,
         base: SchedulerOutput,
         req_ids: list[str],
+        steps=None,
     ) -> SchedulerOutput:
+        if steps is None:
+            steps = self.pending_dual_steps
         new_reqs: list[NewRequestData] = []
         cached_ids: list[str] = []
         cached_block_ids = []
@@ -308,7 +320,7 @@ class DualWorker(Worker):
         cached_output_tokens = []
         num_scheduled_tokens: dict[str, int] = {}
         for req_id in req_ids:
-            plan, scheduled_step, history = self.pending_dual_steps[req_id]
+            plan, scheduled_step, history = steps[req_id]
             if plan.large_delta <= 0:
                 raise AssertionError("a LARGE route must schedule at least one token")
             num_scheduled_tokens[req_id] = plan.large_delta
@@ -367,6 +379,102 @@ class DualWorker(Worker):
             free_encoder_mm_hashes=[],
         )
 
+    @staticmethod
+    def _append_runner_token(runner, req_id, token):
+        request = runner.requests.get(req_id)
+        if request is None:
+            return
+        batch = runner.input_batch
+        row = batch.req_id_to_index.get(req_id)
+        if row is not None:
+            start = int(batch.num_tokens_no_spec[row])
+            batch.token_ids_cpu[row, start:start + 1] = [token]
+            batch.is_token_ids[row, start:start + 1] = True
+            batch.num_tokens_no_spec[row] = start + 1
+            batch.num_tokens[row] = start + 1
+        request.output_token_ids.append(token)
+
+    def _sample_or_defer(self, grammar_output):
+        runner = self.model_runner
+        if (grammar_output is not None or runner.use_async_scheduling or
+                not runner.input_batch.sampling_metadata.all_greedy):
+            raise ValueError("Queued GRPO requires synchronous greedy decoding")
+        batch = runner.input_batch
+        validate = self.dual_trace.path is not None
+        top = runner.execute_model_state.logits.argmax(-1).tolist() if validate else None
+        deferred = []
+        for rid, step in self.pending_dual_steps.items():
+            plan, meta, _ = step
+            if plan.route == LARGE:
+                key = (rid, meta.output_index)
+                if key in self.pending_large:
+                    raise RuntimeError(f"Duplicate pending position: {key}")
+                row = batch.req_id_to_index[rid]
+                # Normal synchronous sampler bookkeeping drops these rows:
+                # neither its dense input batch nor the request receives a token.
+                runner.discard_request_mask.np[row] = True
+                self.pending_large[key] = step
+                self.dual_request_states[rid].small_num_computed_tokens = plan.history_len_before
+                if validate:
+                    self.pending_small_argmax[key] = top[row]
+                deferred.append((key, plan.large_delta))
+        output = super().sample_tokens(grammar_output)
+        output.dual_deferred = deferred
+        for rid, (plan, meta, _) in self.pending_dual_steps.items():
+            if plan.route == LARGE:
+                continue
+            row = batch.req_id_to_index[rid]
+            token = output.sampled_token_ids[row][0]
+            self._append_runner_token(self.large_model_runner, rid, token)
+            state = self.dual_request_states[rid]
+            state.commit_forwards(plan)
+            if validate:
+                assert token == top[row]
+                self._trace_queued(rid, meta, plan, token, top[row], None, [])
+            self.grpo_router.commit(rid, state.output_index, plan.route)
+            state.commit_sample()
+        self.pending_dual_steps = {}
+        return output
+
+    def _flush_large(self, scheduler_output, keys):
+        steps = {rid: self.pending_large[(rid, index)] for rid, index in keys}
+        private = self._make_lazy_large_output(scheduler_output, list(steps), steps)
+        runner = self.large_model_runner
+        large_output = runner.execute_model(private)
+        if large_output is not None:
+            raise RuntimeError("Expected deferred sampling on the private runner")
+        validate = self.dual_trace.path is not None
+        if validate:
+            logits = runner.execute_model_state.logits
+            if not torch.isfinite(logits).all():
+                raise FloatingPointError("Non-finite large logits in queued execution")
+            top = logits.argmax(-1).tolist()
+        # Sampling on the private runner appends its own token exactly once.
+        output = runner.sample_tokens(None)
+        for rid, index in keys:
+            row = output.req_id_to_index[rid]
+            token = output.sampled_token_ids[row][0]
+            plan, meta, history = self.pending_large.pop((rid, index))
+            state = self.dual_request_states[rid]
+            assert state.output_index == index and state.small_num_computed_tokens == plan.history_len_before
+            self._append_runner_token(self.model_runner, rid, token)
+            state.large_num_computed_tokens = plan.history_len_before
+            if validate:
+                assert token == top[row]
+                self._trace_queued(rid, meta, plan, token, self.pending_small_argmax.pop((rid, index)),
+                                   top[row], history[plan.large_before:plan.history_len_before])
+            self.grpo_router.commit(rid, index, LARGE)
+            state.commit_sample()
+        return output
+
+    def _trace_queued(self, rid, meta, plan, token, small_top, large_top, large_inputs):
+        self.dual_trace.write(dict(request_id=rid, output_index=meta.output_index,
+                                   route=ROUTE_NAMES[plan.route], accepted_token=token,
+                                   small_argmax=small_top, large_argmax=large_top,
+                                   large_input_token_ids=large_inputs,
+                                   large_before=plan.large_before, large_delta=plan.large_delta,
+                                   large_after=self.dual_request_states[rid].large_num_computed_tokens))
+
     @torch.inference_mode()
     def sample_tokens(self, grammar_output):
         if not self.dual_model_config.sync_forward_enabled:
@@ -376,6 +484,8 @@ class DualWorker(Worker):
             return super().sample_tokens(grammar_output)
         if not self.pending_dual_steps:
             raise RuntimeError("missing dual step planned before forward")
+        if self.dual_model_config.queue_large:
+            return self._sample_or_defer(grammar_output)
         sync_large = self.dual_model_config.mode == "sync"
         small_logits = execute_state.logits
         if self.large_model_runner is None:
@@ -396,29 +506,35 @@ class DualWorker(Worker):
             if large_execute_state is not None
             else None
         )
-        if large_logits is not None and not torch.isfinite(large_logits).all():
+        validate = self.dual_trace.path is not None
+        if validate and large_logits is not None and not torch.isfinite(large_logits).all():
             raise FloatingPointError("large catch-up logits contain NaN or Inf")
         if large_execute_state is not None:
             # The large runner never samples. Clear its deferred-sampling state
             # so it can accept the next SchedulerOutput.
             self.large_model_runner.execute_model_state = None
         selected_logits = small_logits.clone()
-        large_to_global_row: dict[str, int] = {}
         if large_logits is not None:
             for large_row, req_id in enumerate(
                 self.large_model_runner.input_batch.req_ids
             ):
                 global_row = self.model_runner.input_batch.req_id_to_index[req_id]
-                large_to_global_row[req_id] = global_row
                 if self.pending_dual_steps[req_id][0].route == LARGE:
                     selected_logits[global_row].copy_(large_logits[large_row])
         self.model_runner.execute_model_state = execute_state._replace(
             logits=selected_logits
         )
         output = super().sample_tokens(grammar_output)
-        small_kv_ptr = int(self.model_runner.kv_caches[0].data_ptr())
-        large_kv_ptr = int(self.large_model_runner.kv_caches[0].data_ptr())
-        assert small_kv_ptr != large_kv_ptr
+        if validate:
+            top_ids = small_logits.argmax(dim=-1)
+            if large_logits is not None:
+                top_ids = torch.cat((top_ids, large_logits.argmax(dim=-1)))
+            host_ids = top_ids.tolist()
+            small_top = host_ids[:small_logits.shape[0]]
+            large_top = host_ids[small_logits.shape[0]:]
+            small_kv_ptr = self.model_runner.kv_caches[0].data_ptr()
+            large_kv_ptr = self.large_model_runner.kv_caches[0].data_ptr()
+            assert small_kv_ptr != large_kv_ptr
         for req_id in self.model_runner.input_batch.req_ids:
             if req_id not in self.pending_dual_steps:
                 continue
@@ -426,73 +542,54 @@ class DualWorker(Worker):
             state = self.dual_request_states[req_id]
             state.commit_forwards(plan, sync_large=sync_large)
             global_row = self.model_runner.input_batch.req_id_to_index[req_id]
-            small_argmax = int(small_logits.argmax(dim=-1)[global_row].item())
-            large_argmax = None
-            if req_id in large_to_global_row:
-                large_row = self.large_model_runner.input_batch.req_id_to_index[req_id]
-                large_argmax = int(large_logits.argmax(dim=-1)[large_row].item())
-            selected_argmax = large_argmax if plan.route == LARGE else small_argmax
             accepted_token = output.sampled_token_ids[global_row][0]
-            assert selected_argmax is not None and accepted_token == selected_argmax
-            if req_id in self.large_model_runner.requests:
-                large_batch = self.large_model_runner.input_batch
-                if req_id in large_batch.req_id_to_index:
-                    large_req_index = large_batch.req_id_to_index[req_id]
-                    large_start = int(large_batch.num_tokens_no_spec[large_req_index])
-                    large_end = large_start + 1
-                    large_batch.token_ids_cpu[
-                        large_req_index, large_start:large_end
-                    ] = [accepted_token]
-                    large_batch.is_token_ids[
-                        large_req_index, large_start:large_end
-                    ] = True
-                    large_batch.num_tokens_no_spec[large_req_index] = large_end
-                    large_batch.num_tokens[large_req_index] = large_end
-                self.large_model_runner.requests[req_id].output_token_ids.append(
-                    accepted_token
-                )
-            request = self.model_runner.requests[req_id]
-            large_request = self.large_model_runner.requests.get(req_id)
-            self.dual_trace.write({
-                "request_id": req_id,
-                "output_index": state.output_index,
-                "route": ROUTE_NAMES[plan.route],
-                "history_len_before": len(history),
-                "small_before": plan.small_before,
-                "small_delta": plan.small_delta,
-                "small_after": state.small_num_computed_tokens,
-                "large_before": plan.large_before,
-                "large_delta": plan.large_delta,
-                "large_input_token_ids": (
-                    history[plan.large_before : plan.history_len_before]
-                    if sync_large or plan.route == LARGE
-                    else []
-                ),
-                "large_after": state.large_num_computed_tokens,
-                "small_argmax": small_argmax,
-                "large_argmax": large_argmax,
-                "selected_argmax": selected_argmax,
-                "accepted_token": accepted_token,
-                "small_block_ids": list(request.block_ids[0]),
-                "large_block_ids": (
-                    list(large_request.block_ids[0])
-                    if large_request is not None else []
-                ),
-                "global_row": global_row,
-                "large_row": (
-                    self.large_model_runner.input_batch.req_id_to_index[req_id]
-                    if req_id in large_to_global_row else None
-                ),
-                "large_sub_batch_size": len(large_req_ids),
-                "small_allocator": "small",
-                "large_allocator": "large",
-                "small_total_blocks": scheduled_step.small_total_blocks,
-                "large_total_blocks": scheduled_step.large_total_blocks,
-                "small_used_blocks": scheduled_step.small_used_blocks,
-                "large_used_blocks": scheduled_step.large_used_blocks,
-                "small_kv_ptr": small_kv_ptr,
-                "large_kv_ptr": large_kv_ptr,
-            })
+            self._append_runner_token(self.large_model_runner, req_id, accepted_token)
+            if validate:
+                small_argmax = small_top[global_row]
+                large_row = self.large_model_runner.input_batch.req_id_to_index.get(req_id)
+                large_row = large_row if large_logits is not None else None
+                large_argmax = large_top[large_row] if large_row is not None else None
+                selected_argmax = large_argmax if plan.route == LARGE else small_argmax
+                assert accepted_token == selected_argmax
+                request = self.model_runner.requests[req_id]
+                large_request = self.large_model_runner.requests.get(req_id)
+                self.dual_trace.write({
+                    "request_id": req_id,
+                    "output_index": state.output_index,
+                    "route": ROUTE_NAMES[plan.route],
+                    "history_len_before": len(history),
+                    "small_before": plan.small_before,
+                    "small_delta": plan.small_delta,
+                    "small_after": state.small_num_computed_tokens,
+                    "large_before": plan.large_before,
+                    "large_delta": plan.large_delta,
+                    "large_input_token_ids": (
+                        history[plan.large_before : plan.history_len_before]
+                        if sync_large or plan.route == LARGE
+                        else []
+                    ),
+                    "large_after": state.large_num_computed_tokens,
+                    "small_argmax": small_argmax,
+                    "large_argmax": large_argmax,
+                    "selected_argmax": selected_argmax,
+                    "accepted_token": accepted_token,
+                    "small_block_ids": list(request.block_ids[0]),
+                    "large_block_ids": (
+                        list(large_request.block_ids[0])
+                        if large_request is not None else []
+                    ),
+                    "global_row": global_row,
+                    "large_row": large_row,
+                    "large_sub_batch_size": len(large_req_ids),
+                    "small_allocator": "small",
+                    "large_allocator": "large",
+                    "small_total_blocks": scheduled_step.small_total_blocks,
+                    "large_total_blocks": scheduled_step.large_total_blocks,
+                    "small_used_blocks": scheduled_step.small_used_blocks,
+                    "large_used_blocks": scheduled_step.large_used_blocks,
+                    "small_kv_ptr": small_kv_ptr,
+                    "large_kv_ptr": large_kv_ptr,
+                })
             if self.grpo_router is not None:
                 self.grpo_router.commit(req_id, state.output_index, plan.route)
             state.commit_sample()

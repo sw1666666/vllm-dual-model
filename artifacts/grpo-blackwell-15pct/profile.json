@@ -1,0 +1,42 @@
+{
+  "input_set_checks": {
+    "128": {
+      "threshold": 0.6475,
+      "outputs": 16384,
+      "large_outputs": 2556,
+      "share": 0.156005859375
+    },
+    "256": {
+      "threshold": 0.6475,
+      "outputs": 32768,
+      "large_outputs": 4937,
+      "share": 0.150665283203125
+    }
+  },
+  "target": 0.15,
+  "calibration_seed": 1532,
+  "requests": 768,
+  "input_sha256": "c6b9f67a615345711049432f395b8c0d399105564a7ca1abe2bace10d91a96f7",
+  "router_large_threshold": 0.6475,
+  "calibration_share": 0.14888509114583334,
+  "trials": [
+    {
+      "threshold": 0.63,
+      "outputs": 24576,
+      "large_outputs": 3870,
+      "share": 0.157470703125
+    },
+    {
+      "threshold": 0.665,
+      "outputs": 24576,
+      "large_outputs": 3458,
+      "share": 0.14070638020833334
+    },
+    {
+      "threshold": 0.6475,
+      "outputs": 24576,
+      "large_outputs": 3659,
+      "share": 0.14888509114583334
+    }
+  ]
+}

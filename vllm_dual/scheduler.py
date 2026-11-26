@@ -7,6 +7,7 @@ from copy import deepcopy
 from transformers import AutoConfig
 from vllm.logger import init_logger
 from vllm.v1.core.kv_cache_manager import KVCacheManager
+from vllm.v1.core.sched.output import SchedulerOutput
 from vllm.v1.core.sched.scheduler import Scheduler
 
 from .batch_gate import LargeBatchGate
@@ -32,6 +33,10 @@ class DualScheduler(Scheduler):
             forced_routes=self.dual_model_config.forced_routes,
         )
         self.large_num_computed_tokens: dict[str, int] = {}
+        # (request, public output index) -> (private input positions, small round).
+        self.pending_large: dict[tuple[str, int], tuple[int, int]] = {}
+        self.small_round = 0
+        self.draining_large = False
         self.large_batch_gate = LargeBatchGate(
             min_batch_size=self.dual_model_config.large_min_batch_size,
             max_wait_steps=self.dual_model_config.large_max_wait_steps,
@@ -130,6 +135,19 @@ class DualScheduler(Scheduler):
         )
 
     def schedule(self):
+        if self.dual_model_config.queue_large and self.pending_large:
+            for key in tuple(self.pending_large):
+                if key[0] not in self.requests:
+                    del self.pending_large[key]
+            if self.pending_large:
+                positions = sum(delta for delta, _ in self.pending_large.values())
+                _, oldest = next(iter(self.pending_large.values()))
+                no_small = len(self.running) == len(self.pending_large) and (
+                    not self.waiting or len(self.running) >= self.max_num_running_reqs
+                )
+                if (self.draining_large or positions >= 2 * self.max_num_running_reqs
+                        or self.small_round > oldest or no_small):
+                    return self._schedule_large_flush()
         output = self._schedule_with_large_batch_gate()
         if not (
             self.dual_model_config.enabled
@@ -217,6 +235,26 @@ class DualScheduler(Scheduler):
         output.dual_model_metadata = metadata
         return output
 
+    def _schedule_large_flush(self):
+        # Public small KV was computed on the routing round. Return a sample
+        # for that same position without calling Scheduler._update_after_schedule.
+        out = SchedulerOutput.make_empty()
+        keys = []
+        positions = 0
+        for key, (delta, _) in self.pending_large.items():
+            if delta > self.max_num_scheduled_tokens:
+                raise ValueError("One pending history exceeds the large flush budget")
+            if positions + delta > self.max_num_scheduled_tokens:
+                break
+            keys.append(key)
+            positions += delta
+        self.draining_large = len(keys) < len(self.pending_large)
+        out.num_common_prefix_blocks = [0] * self.large_kv_cache_manager.num_kv_cache_groups
+        out.dual_flush = keys
+        out.num_scheduled_tokens = {rid: 1 for rid, _ in keys}
+        out.total_num_scheduled_tokens = len(keys)
+        return out
+
     def _schedule_with_large_batch_gate(self):
         if (
             self.dual_model_config.mode != "lazy"
@@ -268,6 +306,17 @@ class DualScheduler(Scheduler):
         return output
 
     def update_from_output(self, scheduler_output, model_runner_output):
+        if self.dual_model_config.queue_large:
+            flush = getattr(scheduler_output, "dual_flush", ())
+            if flush:
+                for key in flush:
+                    del self.pending_large[key]
+            elif scheduler_output.total_num_scheduled_tokens:
+                self.small_round += 1
+                for key, delta in model_runner_output.dual_deferred:
+                    if key in self.pending_large:
+                        raise RuntimeError(f"Output position was queued twice: {key}")
+                    self.pending_large[key] = (delta, self.small_round)
         result = super().update_from_output(scheduler_output, model_runner_output)
         metadata = getattr(scheduler_output, "dual_model_metadata", {})
         sync_large = self.dual_model_config.mode == "sync"

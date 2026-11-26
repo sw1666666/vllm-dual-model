@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -9,6 +10,9 @@ from unittest.mock import patch
 
 os.environ.setdefault("VLLM_ENABLE_V1_MULTIPROCESSING", "0")
 os.environ.setdefault("VLLM_ATTENTION_BACKEND", "TRITON_ATTN")
+
+if os.environ.get("DUAL_IMPL_ROOT"):
+    sys.path.insert(0, os.environ["DUAL_IMPL_ROOT"])
 
 import torch
 from vllm import LLM, SamplingParams
@@ -42,8 +46,22 @@ def main():
     parser.add_argument("--checkpoint")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--questions", type=Path, default=Path("artifacts/grpo-v100/questions.json"))
+    parser.add_argument("--batch", type=int, help="Run the fixed-request large-batch experiment")
+    parser.add_argument("--workload", choices=("synthetic", "gsm8k", "check"), default="synthetic")
+    parser.add_argument("--queue-large", action="store_true",
+                        help="Use the V2 pending queue in an online GRPO run")
     add_grpo_threshold_args(parser)
     args = parser.parse_args()
+    if args.batch is not None:
+        if __package__:
+            from .grpo_batch_experiment import run
+        else:
+            from grpo_batch_experiment import run
+        return run(args)
+    if args.workload != "synthetic":
+        parser.error("workload selection requires --batch")
+    if args.queue_large and args.mode != "grpo":
+        parser.error("--queue-large requires grpo mode")
     learned = args.mode in {"grpo", "replay"}
     if learned and not args.checkpoint:
         parser.error("grpo requires --checkpoint")
@@ -59,6 +77,7 @@ def main():
             router_large_threshold=args.router_large_threshold,
             p_large=0.1, router_checkpoint=args.checkpoint if learned else None,
             trace_path=str(trace),
+            **({"queue_large": True} if args.queue_large else {}),
         )
         options.update(worker_cls="vllm_dual.worker.DualWorker",
                        scheduler_cls="vllm_dual.scheduler.DualScheduler",

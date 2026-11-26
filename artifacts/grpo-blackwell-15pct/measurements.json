@@ -1,0 +1,492 @@
+{
+  "native-synthetic-128": {
+    "batch": 128,
+    "workload": "synthetic",
+    "requests": 512,
+    "input_sha256": "fc559156da64237461e621d68b8180ed6c2a8d74435bd3b7796763b3ea06232b",
+    "mode": "large",
+    "queue_large": false,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 0,
+    "large_kv_bytes": 3024617472,
+    "max_model_len": 160,
+    "public_token_budget": 4096,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "d97cc24d1dab1da12821a7c2ac648f98b44181fe4ed8f2846aedf250cfc22f4d",
+        "large_calls": 132,
+        "large_outputs": 0,
+        "large_history_tokens": 0,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 5.119326657964848,
+        "tok_s": 3200.420894124647
+      },
+      {
+        "rep": 1,
+        "output_sha256": "d97cc24d1dab1da12821a7c2ac648f98b44181fe4ed8f2846aedf250cfc22f4d",
+        "large_calls": 132,
+        "large_outputs": 0,
+        "large_history_tokens": 0,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 5.067482428043149,
+        "tok_s": 3233.163653283119
+      },
+      {
+        "rep": 2,
+        "output_sha256": "d97cc24d1dab1da12821a7c2ac648f98b44181fe4ed8f2846aedf250cfc22f4d",
+        "large_calls": 132,
+        "large_outputs": 0,
+        "large_history_tokens": 0,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 5.078183087985963,
+        "tok_s": 3226.350786516835
+      }
+    ],
+    "median_tok_s": 3226.350786516835
+  },
+  "native-synthetic-256": {
+    "batch": 256,
+    "workload": "synthetic",
+    "requests": 1024,
+    "input_sha256": "4e01c7dd33c5c2304caad94cb13b731e5e63747cbee3aae6f0e497595c4d4ede",
+    "mode": "large",
+    "queue_large": false,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 0,
+    "large_kv_bytes": 6044516352,
+    "max_model_len": 160,
+    "public_token_budget": 8192,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "24bf6f2285fd016ecfcec86863cce8b84f20b42513fe25977bb483c3df0369c6",
+        "large_calls": 132,
+        "large_outputs": 0,
+        "large_history_tokens": 0,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 8.850458372035064,
+        "tok_s": 3702.4071096179127
+      },
+      {
+        "rep": 1,
+        "output_sha256": "24bf6f2285fd016ecfcec86863cce8b84f20b42513fe25977bb483c3df0369c6",
+        "large_calls": 132,
+        "large_outputs": 0,
+        "large_history_tokens": 0,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 8.957878630026244,
+        "tok_s": 3658.0089274891193
+      },
+      {
+        "rep": 2,
+        "output_sha256": "24bf6f2285fd016ecfcec86863cce8b84f20b42513fe25977bb483c3df0369c6",
+        "large_calls": 132,
+        "large_outputs": 0,
+        "large_history_tokens": 0,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 8.990429094061255,
+        "tok_s": 3644.7648557336743
+      }
+    ],
+    "median_tok_s": 3658.0089274891193
+  },
+  "old-gsm8k-96": {
+    "batch": 96,
+    "workload": "gsm8k",
+    "requests": 96,
+    "input_sha256": "3b67e263e4f6e16143cfa8013eea95d35ecea4642586b3001e109133ce45fb36",
+    "mode": "grpo",
+    "queue_large": false,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 2822242304,
+    "large_kv_bytes": 3628597248,
+    "max_model_len": 256,
+    "public_token_budget": 3072,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+        "large_calls": 20,
+        "large_outputs": 118,
+        "large_history_tokens": 6831,
+        "peak_decode_rows": 96,
+        "peak_active_decode": 96,
+        "seconds": 0.8749891070183367,
+        "tok_s": 3510.900850489813
+      },
+      {
+        "rep": 1,
+        "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+        "large_calls": 20,
+        "large_outputs": 118,
+        "large_history_tokens": 6831,
+        "peak_decode_rows": 96,
+        "peak_active_decode": 96,
+        "seconds": 0.8758291620761156,
+        "tok_s": 3507.533355840716
+      },
+      {
+        "rep": 2,
+        "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+        "large_calls": 20,
+        "large_outputs": 118,
+        "large_history_tokens": 6831,
+        "peak_decode_rows": 96,
+        "peak_active_decode": 96,
+        "seconds": 0.873339529032819,
+        "tok_s": 3517.5322974354435
+      }
+    ],
+    "median_tok_s": 3510.900850489813
+  },
+  "old-synthetic-128": {
+    "batch": 128,
+    "workload": "synthetic",
+    "requests": 512,
+    "input_sha256": "fc559156da64237461e621d68b8180ed6c2a8d74435bd3b7796763b3ea06232b",
+    "mode": "grpo",
+    "queue_large": false,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 2352480256,
+    "large_kv_bytes": 3024617472,
+    "max_model_len": 160,
+    "public_token_budget": 4096,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "2e87029f578577f4a25545b29f8521b234821db5df61ed15360995c8bbe68ac5",
+        "large_calls": 132,
+        "large_outputs": 2556,
+        "large_history_tokens": 28940,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 4.810452070902102,
+        "tok_s": 3405.9168989760906
+      },
+      {
+        "rep": 1,
+        "output_sha256": "2e87029f578577f4a25545b29f8521b234821db5df61ed15360995c8bbe68ac5",
+        "large_calls": 132,
+        "large_outputs": 2556,
+        "large_history_tokens": 28940,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 5.062143571092747,
+        "tok_s": 3236.573552271502
+      },
+      {
+        "rep": 2,
+        "output_sha256": "2e87029f578577f4a25545b29f8521b234821db5df61ed15360995c8bbe68ac5",
+        "large_calls": 132,
+        "large_outputs": 2556,
+        "large_history_tokens": 28940,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 5.03882956597954,
+        "tok_s": 3251.548754619363
+      }
+    ],
+    "median_tok_s": 3251.548754619363
+  },
+  "old-synthetic-256": {
+    "batch": 256,
+    "workload": "synthetic",
+    "requests": 1024,
+    "input_sha256": "4e01c7dd33c5c2304caad94cb13b731e5e63747cbee3aae6f0e497595c4d4ede",
+    "mode": "grpo",
+    "queue_large": false,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 4701290496,
+    "large_kv_bytes": 6044516352,
+    "max_model_len": 160,
+    "public_token_budget": 8192,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "1710ffaa9f7d6cb6f71c380d089e0d6ca546c7b895466ff93a47726140ea5de2",
+        "large_calls": 132,
+        "large_outputs": 4948,
+        "large_history_tokens": 55126,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 8.790465220925398,
+        "tok_s": 3727.6752909501206
+      },
+      {
+        "rep": 1,
+        "output_sha256": "1710ffaa9f7d6cb6f71c380d089e0d6ca546c7b895466ff93a47726140ea5de2",
+        "large_calls": 132,
+        "large_outputs": 4948,
+        "large_history_tokens": 55126,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 8.53968199098017,
+        "tok_s": 3837.1452279616965
+      },
+      {
+        "rep": 2,
+        "output_sha256": "1710ffaa9f7d6cb6f71c380d089e0d6ca546c7b895466ff93a47726140ea5de2",
+        "large_calls": 132,
+        "large_outputs": 4948,
+        "large_history_tokens": 55126,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 8.381123112048954,
+        "tok_s": 3909.738535267635
+      }
+    ],
+    "median_tok_s": 3837.1452279616965
+  },
+  "v1-synthetic-128": {
+    "batch": 128,
+    "workload": "synthetic",
+    "requests": 512,
+    "input_sha256": "fc559156da64237461e621d68b8180ed6c2a8d74435bd3b7796763b3ea06232b",
+    "mode": "grpo",
+    "queue_large": false,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 2352480256,
+    "large_kv_bytes": 3024617472,
+    "max_model_len": 160,
+    "public_token_budget": 4096,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "2e87029f578577f4a25545b29f8521b234821db5df61ed15360995c8bbe68ac5",
+        "large_calls": 132,
+        "large_outputs": 2556,
+        "large_history_tokens": 28940,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 4.204582076985389,
+        "tok_s": 3896.7011940808725
+      },
+      {
+        "rep": 1,
+        "output_sha256": "2e87029f578577f4a25545b29f8521b234821db5df61ed15360995c8bbe68ac5",
+        "large_calls": 132,
+        "large_outputs": 2556,
+        "large_history_tokens": 28940,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 4.226117920014076,
+        "tok_s": 3876.844023307667
+      },
+      {
+        "rep": 2,
+        "output_sha256": "2e87029f578577f4a25545b29f8521b234821db5df61ed15360995c8bbe68ac5",
+        "large_calls": 132,
+        "large_outputs": 2556,
+        "large_history_tokens": 28940,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 4.214770241989754,
+        "tok_s": 3887.2818823607486
+      }
+    ],
+    "median_tok_s": 3887.2818823607486
+  },
+  "v1-synthetic-256": {
+    "batch": 256,
+    "workload": "synthetic",
+    "requests": 1024,
+    "input_sha256": "4e01c7dd33c5c2304caad94cb13b731e5e63747cbee3aae6f0e497595c4d4ede",
+    "mode": "grpo",
+    "queue_large": false,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 4701290496,
+    "large_kv_bytes": 6044516352,
+    "max_model_len": 160,
+    "public_token_budget": 8192,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "1710ffaa9f7d6cb6f71c380d089e0d6ca546c7b895466ff93a47726140ea5de2",
+        "large_calls": 132,
+        "large_outputs": 4948,
+        "large_history_tokens": 55126,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 7.144220278016292,
+        "tok_s": 4586.644689670538
+      },
+      {
+        "rep": 1,
+        "output_sha256": "1710ffaa9f7d6cb6f71c380d089e0d6ca546c7b895466ff93a47726140ea5de2",
+        "large_calls": 132,
+        "large_outputs": 4948,
+        "large_history_tokens": 55126,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 6.891683820053004,
+        "tok_s": 4754.716097777681
+      },
+      {
+        "rep": 2,
+        "output_sha256": "1710ffaa9f7d6cb6f71c380d089e0d6ca546c7b895466ff93a47726140ea5de2",
+        "large_calls": 132,
+        "large_outputs": 4948,
+        "large_history_tokens": 55126,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 6.7760777429211885,
+        "tok_s": 4835.8358984638235
+      }
+    ],
+    "median_tok_s": 4754.716097777681
+  },
+  "v2-gsm8k-96": {
+    "batch": 96,
+    "workload": "gsm8k",
+    "requests": 96,
+    "input_sha256": "3b67e263e4f6e16143cfa8013eea95d35ecea4642586b3001e109133ce45fb36",
+    "mode": "grpo",
+    "queue_large": true,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 2822242304,
+    "large_kv_bytes": 3628597248,
+    "max_model_len": 256,
+    "public_token_budget": 3072,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+        "large_calls": 20,
+        "large_outputs": 118,
+        "large_history_tokens": 6831,
+        "peak_decode_rows": 96,
+        "peak_active_decode": 96,
+        "seconds": 0.7570188380777836,
+        "tok_s": 4058.023189753638
+      },
+      {
+        "rep": 1,
+        "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+        "large_calls": 20,
+        "large_outputs": 118,
+        "large_history_tokens": 6831,
+        "peak_decode_rows": 96,
+        "peak_active_decode": 96,
+        "seconds": 0.7546534090070054,
+        "tok_s": 4070.742891153471
+      },
+      {
+        "rep": 2,
+        "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+        "large_calls": 20,
+        "large_outputs": 118,
+        "large_history_tokens": 6831,
+        "peak_decode_rows": 96,
+        "peak_active_decode": 96,
+        "seconds": 0.751630847924389,
+        "tok_s": 4087.112720936423
+      }
+    ],
+    "median_tok_s": 4070.742891153471
+  },
+  "v2-synthetic-128": {
+    "batch": 128,
+    "workload": "synthetic",
+    "requests": 512,
+    "input_sha256": "fc559156da64237461e621d68b8180ed6c2a8d74435bd3b7796763b3ea06232b",
+    "mode": "grpo",
+    "queue_large": true,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 2352480256,
+    "large_kv_bytes": 3024617472,
+    "max_model_len": 160,
+    "public_token_budget": 4096,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+        "large_calls": 112,
+        "large_outputs": 2564,
+        "large_history_tokens": 28927,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 3.8986753100762144,
+        "tok_s": 4202.453063391861
+      },
+      {
+        "rep": 1,
+        "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+        "large_calls": 112,
+        "large_outputs": 2564,
+        "large_history_tokens": 28927,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 3.938634147052653,
+        "tok_s": 4159.817690165619
+      },
+      {
+        "rep": 2,
+        "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+        "large_calls": 112,
+        "large_outputs": 2564,
+        "large_history_tokens": 28927,
+        "peak_decode_rows": 128,
+        "peak_active_decode": 128,
+        "seconds": 3.9755341929849237,
+        "tok_s": 4121.20716479073
+      }
+    ],
+    "median_tok_s": 4159.817690165619
+  },
+  "v2-synthetic-256": {
+    "batch": 256,
+    "workload": "synthetic",
+    "requests": 1024,
+    "input_sha256": "4e01c7dd33c5c2304caad94cb13b731e5e63747cbee3aae6f0e497595c4d4ede",
+    "mode": "grpo",
+    "queue_large": true,
+    "router_large_threshold": 0.6475,
+    "small_kv_bytes": 4701290496,
+    "large_kv_bytes": 6044516352,
+    "max_model_len": 160,
+    "public_token_budget": 8192,
+    "runs": [
+      {
+        "rep": 0,
+        "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+        "large_calls": 106,
+        "large_outputs": 4934,
+        "large_history_tokens": 54689,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 6.395277625066228,
+        "tok_s": 5123.780689608555
+      },
+      {
+        "rep": 1,
+        "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+        "large_calls": 106,
+        "large_outputs": 4934,
+        "large_history_tokens": 54689,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 6.4287372750695795,
+        "tok_s": 5097.112947370422
+      },
+      {
+        "rep": 2,
+        "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+        "large_calls": 106,
+        "large_outputs": 4934,
+        "large_history_tokens": 54689,
+        "peak_decode_rows": 256,
+        "peak_active_decode": 256,
+        "seconds": 6.216964440071024,
+        "tok_s": 5270.739492861833
+      }
+    ],
+    "median_tok_s": 5123.780689608555
+  }
+}

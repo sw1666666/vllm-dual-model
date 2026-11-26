@@ -65,6 +65,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--large-min-batch-size", type=int, default=4)
     parser.add_argument("--large-max-wait-steps", type=int, default=4)
     parser.add_argument("--enable-dual-forward", action="store_true")
+    parser.add_argument("--queue-large", action="store_true", help="Batch pending online GRPO 8B work")
     parser.add_argument(
         "--enforce-eager",
         action="store_true",
@@ -87,6 +88,7 @@ def main() -> None:
         p_large=args.p_large,
         mode=args.mode,
         sync_forward_enabled=args.enable_dual_forward,
+        queue_large=args.queue_large,
         forced_routes=forced_routes,
         large_min_batch_size=args.large_min_batch_size,
         large_max_wait_steps=args.large_max_wait_steps,
@@ -176,6 +178,7 @@ def main() -> None:
         "forced_routes": forced_routes,
     }
     if args.router_checkpoint:
+        result["variant"] = "v2" if args.queue_large else "v1"
         result["router_checkpoint"] = args.router_checkpoint
         result["router_large_threshold"] = args.router_large_threshold
     result["large_model_forward_enabled"] = args.enable_dual_forward

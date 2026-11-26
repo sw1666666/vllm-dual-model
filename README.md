@@ -10,6 +10,17 @@
 Easy, fast, and cheap LLM serving for everyone
 </h3>
 
+## 本分支的 Qwen3 双模型 GRPO 路由
+
+使用 `python -m vllm_dual generate` 生成文本，使用 `python -m vllm_dual benchmark` 测量吞吐。两个入口均可用 `--variant v1`（默认）立即执行选中的 8B，或用 `--variant v2` 将待处理的 8B 请求合批执行。
+
+```bash
+python -m vllm_dual generate --variant v1 --prompt "计算 17 × 24。"
+python -m vllm_dual benchmark --variant v2 --batch 128 --router-large-threshold 0.6475
+```
+
+模型路径、并发选择及复现命令见[中文使用指南](docs/benchmarking/grpo-router.md)。单卡 96 GB 上的路由占比、吞吐和逐请求对齐结果见[约 15% 8B 路由实验](artifacts/grpo-blackwell-15pct/report.md)。
+
 <p align="center">
 | <a href="https://docs.vllm.ai"><b>Documentation</b></a> | <a href="https://blog.vllm.ai/"><b>Blog</b></a> | <a href="https://arxiv.org/abs/2309.06180"><b>Paper</b></a> | <a href="https://x.com/vllm_project"><b>Twitter/X</b></a> | <a href="https://discuss.vllm.ai"><b>User Forum</b></a> | <a href="https://slack.vllm.ai"><b>Developer Slack</b></a> |
 </p>

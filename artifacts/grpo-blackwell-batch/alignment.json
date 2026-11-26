@@ -1,0 +1,282 @@
+{
+  "small_batch": {
+    "requests": 8,
+    "output_tokens_each": 32,
+    "actions_and_tokens_sha256": {
+      "old": "c39dd2f7f559afdb24ea4d00e51e2f0d5642e7a8589d44db9c42fda2b2c4e28d",
+      "v1": "c39dd2f7f559afdb24ea4d00e51e2f0d5642e7a8589d44db9c42fda2b2c4e28d",
+      "v2": "c39dd2f7f559afdb24ea4d00e51e2f0d5642e7a8589d44db9c42fda2b2c4e28d"
+    }
+  },
+  "full_batch": {
+    "128": {
+      "batch": 128,
+      "workload": "synthetic",
+      "requests": 512,
+      "positions": 16384,
+      "old_timing_reproduced": true,
+      "v2_timing_reproduced": true,
+      "old_audit_digest": "b12ead20ca00e48c8660f0d057a5598cf4623d71a282e6b0b6049caedc177db3",
+      "v2_audit_digest": "90edfdcee9929095b88291a55f88c6bfcebb1b70b57ab58c2d82bd325586de35",
+      "counts": {
+        "requests_with_token_diff": 6,
+        "different_tokens": 88,
+        "different_actions": 11,
+        "requests_with_any_diff": 6
+      },
+      "first_difference_classes": {
+        "large_logits": 3,
+        "small_logits": 3
+      },
+      "examples": {
+        "large_logits": {
+          "row": 14,
+          "output_index": 26,
+          "old": {
+            "small": [
+              [
+                2038,
+                374
+              ],
+              [
+                22.3125,
+                18.25
+              ]
+            ],
+            "action": 1,
+            "router_margin": 5.315237998962402,
+            "large": [
+              [
+                2038,
+                374
+              ],
+              [
+                30.125,
+                30.09375
+              ]
+            ],
+            "token": 2038
+          },
+          "v2": {
+            "small": [
+              [
+                2038,
+                374
+              ],
+              [
+                22.3125,
+                18.25
+              ]
+            ],
+            "action": 1,
+            "router_margin": 5.315237998962402,
+            "large": [
+              [
+                2038,
+                374
+              ],
+              [
+                30.078125,
+                30.078125
+              ]
+            ],
+            "token": 374
+          }
+        },
+        "small_logits": {
+          "row": 245,
+          "output_index": 15,
+          "old": {
+            "small": [
+              [
+                702,
+                374
+              ],
+              [
+                18.015625,
+                18.015625
+              ]
+            ],
+            "action": 0,
+            "router_margin": -2.3426430225372314,
+            "token": 374
+          },
+          "v2": {
+            "small": [
+              [
+                702,
+                374
+              ],
+              [
+                18.015625,
+                18.0
+              ]
+            ],
+            "action": 0,
+            "router_margin": -2.3451545238494873,
+            "token": 702
+          }
+        }
+      },
+      "largest_first_difference_top2_gap": 0.03125,
+      "private_inputs_verified": true
+    },
+    "256": {
+      "batch": 256,
+      "workload": "synthetic",
+      "requests": 1024,
+      "positions": 32768,
+      "old_timing_reproduced": true,
+      "v2_timing_reproduced": true,
+      "old_audit_digest": "376faaa494271b5f8d97038b3f59ba1c9fa8ec7a59f7069978b22e7d571d5481",
+      "v2_audit_digest": "2a0b5d5f71a053b53d60c1da452d08fc555cc2a0002441fbe21cf275fe84ed7c",
+      "counts": {
+        "requests_with_token_diff": 16,
+        "different_tokens": 264,
+        "different_actions": 69,
+        "requests_with_any_diff": 18
+      },
+      "first_difference_classes": {
+        "small_logits": 7,
+        "large_logits": 6,
+        "router": 5
+      },
+      "examples": {
+        "small_logits": {
+          "row": 75,
+          "output_index": 10,
+          "old": {
+            "small": [
+              [
+                16,
+                15
+              ],
+              [
+                17.203125,
+                17.1875
+              ]
+            ],
+            "action": 0,
+            "router_margin": -3.5820810794830322,
+            "token": 16
+          },
+          "v2": {
+            "small": [
+              [
+                16,
+                15
+              ],
+              [
+                17.203125,
+                17.203125
+              ]
+            ],
+            "action": 0,
+            "router_margin": -3.582500457763672,
+            "token": 15
+          }
+        },
+        "large_logits": {
+          "row": 133,
+          "output_index": 14,
+          "old": {
+            "small": [
+              [
+                15459,
+                15473
+              ],
+              [
+                17.46875,
+                16.625
+              ]
+            ],
+            "action": 1,
+            "router_margin": 2.5439653396606445,
+            "large": [
+              [
+                15473,
+                15459
+              ],
+              [
+                25.625,
+                25.609375
+              ]
+            ],
+            "token": 15473
+          },
+          "v2": {
+            "small": [
+              [
+                15459,
+                15473
+              ],
+              [
+                17.484375,
+                16.625
+              ]
+            ],
+            "action": 1,
+            "router_margin": 2.543609380722046,
+            "large": [
+              [
+                15473,
+                15459
+              ],
+              [
+                25.609375,
+                25.609375
+              ]
+            ],
+            "token": 15459
+          }
+        },
+        "router": {
+          "row": 407,
+          "output_index": 3,
+          "old": {
+            "small": [
+              [
+                198,
+                13874
+              ],
+              [
+                13.1171875,
+                12.0078125
+              ]
+            ],
+            "action": 1,
+            "router_margin": 0.0006251335144042969,
+            "large": [
+              [
+                198,
+                32313
+              ],
+              [
+                15.7109375,
+                15.109375
+              ]
+            ],
+            "token": 198
+          },
+          "v2": {
+            "small": [
+              [
+                198,
+                13874
+              ],
+              [
+                13.1171875,
+                12.015625
+              ]
+            ],
+            "action": 0,
+            "router_margin": -0.0009210109710693359,
+            "token": 198
+          }
+        }
+      },
+      "largest_first_difference_top2_gap": 0.015625,
+      "private_inputs_verified": true
+    }
+  }
+}
