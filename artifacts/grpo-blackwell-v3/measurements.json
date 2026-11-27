@@ -1,0 +1,327 @@
+{
+  "code": "2075055",
+  "baseline": "20330d1",
+  "device": "RTX PRO 6000 Blackwell Server Edition 96 GB",
+  "threshold": 0.6475,
+  "output_tokens_per_request": 32,
+  "aligned_actions_tokens_sha256": "ec494be523c4366e42276e9dbf690434c98344d04ee238825b9c7bc984991305",
+  "aligned_positions": 256,
+  "aligned_large": 27,
+  "observations": [
+    {
+      "v2": {
+        "batch": 128,
+        "workload": "synthetic",
+        "requests": 512,
+        "input_sha256": "fc559156da64237461e621d68b8180ed6c2a8d74435bd3b7796763b3ea06232b",
+        "mode": "grpo",
+        "queue_large": true,
+        "router_large_threshold": 0.6475,
+        "small_kv_bytes": 2352480256,
+        "large_kv_bytes": 3024617472,
+        "max_model_len": 160,
+        "public_token_budget": 4096,
+        "runs": [
+          {
+            "rep": 0,
+            "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+            "large_calls": 112,
+            "large_outputs": 2564,
+            "large_history_tokens": 28927,
+            "peak_decode_rows": 128,
+            "peak_active_decode": 128,
+            "seconds": 3.899623968056403,
+            "tok_s": 4201.430736452748
+          },
+          {
+            "rep": 1,
+            "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+            "large_calls": 112,
+            "large_outputs": 2564,
+            "large_history_tokens": 28927,
+            "peak_decode_rows": 128,
+            "peak_active_decode": 128,
+            "seconds": 3.9076996340882033,
+            "tok_s": 4192.748044674865
+          },
+          {
+            "rep": 2,
+            "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+            "large_calls": 112,
+            "large_outputs": 2564,
+            "large_history_tokens": 28927,
+            "peak_decode_rows": 128,
+            "peak_active_decode": 128,
+            "seconds": 4.060255019925535,
+            "tok_s": 4035.2145172153455
+          }
+        ],
+        "variant": "v2",
+        "median_tok_s": 4192.748044674865
+      },
+      "v3": {
+        "batch": 128,
+        "workload": "synthetic",
+        "requests": 512,
+        "input_sha256": "fc559156da64237461e621d68b8180ed6c2a8d74435bd3b7796763b3ea06232b",
+        "mode": "grpo",
+        "queue_large": true,
+        "router_large_threshold": 0.6475,
+        "small_kv_bytes": 2352480256,
+        "large_kv_bytes": 3024617472,
+        "max_model_len": 160,
+        "public_token_budget": 4096,
+        "runs": [
+          {
+            "rep": 0,
+            "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+            "large_calls": 112,
+            "large_outputs": 2564,
+            "large_history_tokens": 28927,
+            "peak_decode_rows": 128,
+            "peak_active_decode": 128,
+            "seconds": 3.823311651009135,
+            "tok_s": 4285.290213178297
+          },
+          {
+            "rep": 1,
+            "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+            "large_calls": 112,
+            "large_outputs": 2564,
+            "large_history_tokens": 28927,
+            "peak_decode_rows": 128,
+            "peak_active_decode": 128,
+            "seconds": 3.7878692409722134,
+            "tok_s": 4325.386901633067
+          },
+          {
+            "rep": 2,
+            "output_sha256": "4ac7e9df1eeeb25ce6e06022e2def490bfe5d2c9bec4953623825e48bdddbe67",
+            "large_calls": 112,
+            "large_outputs": 2564,
+            "large_history_tokens": 28927,
+            "peak_decode_rows": 128,
+            "peak_active_decode": 128,
+            "seconds": 3.793081682990305,
+            "tok_s": 4319.442967303448
+          }
+        ],
+        "variant": "v3",
+        "median_tok_s": 4319.442967303448
+      }
+    },
+    {
+      "v2": {
+        "batch": 256,
+        "workload": "synthetic",
+        "requests": 1024,
+        "input_sha256": "4e01c7dd33c5c2304caad94cb13b731e5e63747cbee3aae6f0e497595c4d4ede",
+        "mode": "grpo",
+        "queue_large": true,
+        "router_large_threshold": 0.6475,
+        "small_kv_bytes": 4701290496,
+        "large_kv_bytes": 6044516352,
+        "max_model_len": 160,
+        "public_token_budget": 8192,
+        "runs": [
+          {
+            "rep": 0,
+            "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+            "large_calls": 106,
+            "large_outputs": 4934,
+            "large_history_tokens": 54689,
+            "peak_decode_rows": 256,
+            "peak_active_decode": 256,
+            "seconds": 6.012018876965158,
+            "tok_s": 5450.415354740395
+          },
+          {
+            "rep": 1,
+            "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+            "large_calls": 106,
+            "large_outputs": 4934,
+            "large_history_tokens": 54689,
+            "peak_decode_rows": 256,
+            "peak_active_decode": 256,
+            "seconds": 6.1589736570604146,
+            "tok_s": 5320.366967706706
+          },
+          {
+            "rep": 2,
+            "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+            "large_calls": 106,
+            "large_outputs": 4934,
+            "large_history_tokens": 54689,
+            "peak_decode_rows": 256,
+            "peak_active_decode": 256,
+            "seconds": 6.422440074966289,
+            "tok_s": 5102.110664718346
+          }
+        ],
+        "variant": "v2",
+        "median_tok_s": 5320.366967706706
+      },
+      "v3": {
+        "batch": 256,
+        "workload": "synthetic",
+        "requests": 1024,
+        "input_sha256": "4e01c7dd33c5c2304caad94cb13b731e5e63747cbee3aae6f0e497595c4d4ede",
+        "mode": "grpo",
+        "queue_large": true,
+        "router_large_threshold": 0.6475,
+        "small_kv_bytes": 4701290496,
+        "large_kv_bytes": 6044516352,
+        "max_model_len": 160,
+        "public_token_budget": 8192,
+        "runs": [
+          {
+            "rep": 0,
+            "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+            "large_calls": 106,
+            "large_outputs": 4934,
+            "large_history_tokens": 54689,
+            "peak_decode_rows": 256,
+            "peak_active_decode": 256,
+            "seconds": 5.900926225003786,
+            "tok_s": 5553.026550502073
+          },
+          {
+            "rep": 1,
+            "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+            "large_calls": 106,
+            "large_outputs": 4934,
+            "large_history_tokens": 54689,
+            "peak_decode_rows": 256,
+            "peak_active_decode": 256,
+            "seconds": 6.016975244972855,
+            "tok_s": 5445.925679580859
+          },
+          {
+            "rep": 2,
+            "output_sha256": "6f22fa71d46e6beeb38f6dc8a4e0f96ed65b4e9ca5700feceae32e23ca01d180",
+            "large_calls": 106,
+            "large_outputs": 4934,
+            "large_history_tokens": 54689,
+            "peak_decode_rows": 256,
+            "peak_active_decode": 256,
+            "seconds": 5.924744846997783,
+            "tok_s": 5530.702308067219
+          }
+        ],
+        "variant": "v3",
+        "median_tok_s": 5530.702308067219
+      }
+    },
+    {
+      "v2": {
+        "batch": 96,
+        "workload": "gsm8k",
+        "requests": 96,
+        "input_sha256": "3b67e263e4f6e16143cfa8013eea95d35ecea4642586b3001e109133ce45fb36",
+        "mode": "grpo",
+        "queue_large": true,
+        "router_large_threshold": 0.6475,
+        "small_kv_bytes": 2822242304,
+        "large_kv_bytes": 3628597248,
+        "max_model_len": 256,
+        "public_token_budget": 3072,
+        "runs": [
+          {
+            "rep": 0,
+            "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+            "large_calls": 20,
+            "large_outputs": 118,
+            "large_history_tokens": 6831,
+            "peak_decode_rows": 96,
+            "peak_active_decode": 96,
+            "seconds": 0.7548841190291569,
+            "tok_s": 4069.498778104969
+          },
+          {
+            "rep": 1,
+            "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+            "large_calls": 20,
+            "large_outputs": 118,
+            "large_history_tokens": 6831,
+            "peak_decode_rows": 96,
+            "peak_active_decode": 96,
+            "seconds": 0.7544545739656314,
+            "tok_s": 4071.8157275562394
+          },
+          {
+            "rep": 2,
+            "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+            "large_calls": 20,
+            "large_outputs": 118,
+            "large_history_tokens": 6831,
+            "peak_decode_rows": 96,
+            "peak_active_decode": 96,
+            "seconds": 0.7533215410076082,
+            "tok_s": 4077.939940348758
+          }
+        ],
+        "variant": "v2",
+        "median_tok_s": 4071.8157275562394
+      },
+      "v3": {
+        "batch": 96,
+        "workload": "gsm8k",
+        "requests": 96,
+        "input_sha256": "3b67e263e4f6e16143cfa8013eea95d35ecea4642586b3001e109133ce45fb36",
+        "mode": "grpo",
+        "queue_large": true,
+        "router_large_threshold": 0.6475,
+        "small_kv_bytes": 2822242304,
+        "large_kv_bytes": 3628597248,
+        "max_model_len": 256,
+        "public_token_budget": 3072,
+        "runs": [
+          {
+            "rep": 0,
+            "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+            "large_calls": 20,
+            "large_outputs": 118,
+            "large_history_tokens": 6831,
+            "peak_decode_rows": 96,
+            "peak_active_decode": 96,
+            "seconds": 0.7602297669509426,
+            "tok_s": 4040.883603283368
+          },
+          {
+            "rep": 1,
+            "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+            "large_calls": 20,
+            "large_outputs": 118,
+            "large_history_tokens": 6831,
+            "peak_decode_rows": 96,
+            "peak_active_decode": 96,
+            "seconds": 0.7850119300419465,
+            "tok_s": 3913.316323531351
+          },
+          {
+            "rep": 2,
+            "output_sha256": "24f31af05b8e9bd286c44de2b6c340b37755e16a464ada212bb4dbf40577c543",
+            "large_calls": 20,
+            "large_outputs": 118,
+            "large_history_tokens": 6831,
+            "peak_decode_rows": 96,
+            "peak_active_decode": 96,
+            "seconds": 0.7565130930161104,
+            "tok_s": 4060.736064398267
+          }
+        ],
+        "variant": "v3",
+        "median_tok_s": 4040.883603283368
+      }
+    }
+  ],
+  "generate_smoke": {
+    "variant": "v3",
+    "output_token_ids": [
+      3555,
+      374,
+      1181,
+      3476
+    ]
+  }
+}
