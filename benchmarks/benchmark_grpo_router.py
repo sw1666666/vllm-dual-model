@@ -11,8 +11,7 @@ from unittest.mock import patch
 os.environ.setdefault("VLLM_ENABLE_V1_MULTIPROCESSING", "0")
 os.environ.setdefault("VLLM_ATTENTION_BACKEND", "TRITON_ATTN")
 
-if os.environ.get("DUAL_IMPL_ROOT"):
-    sys.path.insert(0, os.environ["DUAL_IMPL_ROOT"])
+sys.path.insert(0, os.environ.get("DUAL_IMPL_ROOT") or str(Path(__file__).resolve().parents[1]))
 
 import torch
 from vllm import LLM, SamplingParams
@@ -161,7 +160,8 @@ def main():
     if learned:
         for run in runs:
             run["router_large_threshold"] = args.router_large_threshold
-            run["variant"] = config.grpo_variant if args.mode == "grpo" else "replay"
+            if args.mode == "grpo":
+                run["variant"] = "v3" if args.merge_route_readback else ("v2" if args.queue_large else "v1")
     if args.mode == "replay":
         control.stop()
         assert len(original) == len(runs)

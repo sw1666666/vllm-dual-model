@@ -2,7 +2,7 @@
 
 在实验服务器的仓库根目录运行 `python -m vllm_dual`。用 `generate` 生成文本，用 `benchmark` 测端到端吞吐。两个子命令都会加载 Qwen3-0.6B、Qwen3-8B 和训练好的 GRPO 策略，按 token 选择模型。
 
-两个子命令都接受 `--variant`。版本控制选中 8B 后何时执行，`--router-large-threshold` 单独控制路由阈值。
+两个子命令都接受 `--variant`。版本控制 8B 的调度方式和路由动作的读回时机，`--router-large-threshold` 单独控制路由阈值。
 
 | 参数 | 选中 8B 后的行为 |
 |---|---|
