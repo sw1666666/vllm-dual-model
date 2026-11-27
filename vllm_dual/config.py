@@ -58,8 +58,11 @@ class DualModelConfig:
     router_checkpoint: str | None = None
     router_large_threshold: float = DEFAULT_LARGE_THRESHOLD
     queue_large: bool = False
+    merge_route_readback: bool = False
 
     def __post_init__(self) -> None:
+        if self.merge_route_readback and not (self.queue_large and self.router_checkpoint):
+            raise ValueError("GRPO V3 requires a router checkpoint and queued 8B execution")
         validate_large_threshold(self.router_large_threshold)
         if self.queue_large and not self.router_checkpoint:
             raise ValueError("Queued large execution requires the online GRPO router")
@@ -84,6 +87,12 @@ class DualModelConfig:
             route not in (0, 1) for route in self.forced_routes
         ):
             raise ValueError("forced routes must contain only 0 (small) or 1 (large)")
+
+    @property
+    def grpo_variant(self) -> str:
+        if self.merge_route_readback:
+            return "v3"
+        return "v2" if self.queue_large else "v1"
 
     @classmethod
     def from_additional_config(cls, additional_config: Any) -> "DualModelConfig":

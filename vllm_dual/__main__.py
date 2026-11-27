@@ -16,8 +16,8 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     common = argparse.ArgumentParser(add_help=False)
     add_grpo_threshold_args(common)
-    common.add_argument("--variant", choices=("v1", "v2"), default="v1",
-                        help="v1 runs 8B immediately (default); v2 batches pending 8B work")
+    common.add_argument("--variant", choices=("v1", "v2", "v3"), default="v1",
+                        help="v1 runs 8B immediately (default); v2 batches pending 8B work; v3 also returns routes with sampled tokens")
     common.add_argument("--models", type=Path, default=Path("/root/autodl-tmp/models"),
                         help="Parent of Qwen3-0.6B and Qwen3-8B (default: /root/autodl-tmp/models)")
     common.add_argument("--checkpoint", type=Path,
@@ -63,8 +63,10 @@ def main():
                  "--questions", REPO / "artifacts/grpo-v100/questions.json"]
         if args.batch is not None:
             flags.extend(["--batch", str(args.batch), "--workload", args.workload or "synthetic"])
-    if args.variant == "v2":
+    if args.variant in ("v2", "v3"):
         flags.append("--queue-large")
+    if args.variant == "v3":
+        flags.append("--merge-route-readback")
     flags.extend(["--router-large-threshold", threshold])
     print(f"Run directory: {out}", flush=True)
     env = os.environ.copy()

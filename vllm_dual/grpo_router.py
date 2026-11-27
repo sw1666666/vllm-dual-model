@@ -52,15 +52,19 @@ class GrpoRouter:
         self.usage = {}
 
     def decide(self, req_ids, hidden):
+        return self.decide_device(req_ids, hidden).tolist()
+
+    def decide_device(self, req_ids, hidden):
+        """One real route per row, on the same device as the small hidden states."""
         if len(req_ids) != hidden.shape[0]:
             raise ValueError("GRPO needs one last-token hidden state per request")
         usage = torch.stack([self.usage.get(rid, self.zero) for rid in req_ids])
         features = torch.cat((hidden.float(), usage), dim=1)
         logits = F.linear(features, self.weight, self.bias)
         if self.log_odds_threshold == 0:
-            return logits.argmax(dim=1).tolist()
+            return logits.argmax(dim=1)
         large = logits[:, 1] - logits[:, 0] > self.log_odds_threshold
-        return large.long().tolist()
+        return large.long()
 
     def commit(self, req_id, output_index, route):
         if route == 1 and output_index < len(self.positions):

@@ -20,12 +20,13 @@ from vllm.v1.worker.gpu_worker import Worker
 from .config import DualModelConfig
 from .grpo_router import GrpoRouter
 from .model_runner import DualRuntime
-from .router import LARGE, ROUTE_NAMES, DeterministicRouter
+from .router import LARGE, SMALL, ROUTE_NAMES, DeterministicRouter
 from .scheduler_output import DualStepMetadata
 from .state import DualRequestState, StepPlan
 from .trace import JsonlTraceWriter
 
 logger = init_logger(__name__)
+DEFER_LARGE = -2
 
 
 class DualWorker(Worker):
@@ -148,6 +149,11 @@ class DualWorker(Worker):
                 self.model_config.hf_config.hidden_size, self.device,
                 large_threshold=self.dual_model_config.router_large_threshold,
             )
+        if self.dual_model_config.merge_route_readback:
+            self.device_routes = None
+            self.merged_readbacks = 0
+            self._native_token_readback = self.model_runner._to_list
+            self.model_runner._to_list = self._read_tokens_and_routes
         self.large_model_runner = GPUModelRunner(large_vllm_config, self.device)
         self.large_model_runner.load_model()
         self.large_runtime = DualRuntime(
@@ -263,7 +269,10 @@ class DualWorker(Worker):
         actions = None
         if self.grpo_router is not None:
             hidden = self.model_runner.execute_model_state.sample_hidden_states
-            actions = self.grpo_router.decide(req_ids, hidden)
+            if self.dual_model_config.merge_route_readback:
+                actions = self._stage_device_routes(self.grpo_router.decide_device(req_ids, hidden))
+            else:
+                actions = self.grpo_router.decide(req_ids, hidden)
         for row, req_id in enumerate(req_ids):
             if req_id not in scheduler_output.num_scheduled_tokens:
                 continue
@@ -394,6 +403,39 @@ class DualWorker(Worker):
             batch.num_tokens[row] = start + 1
         request.output_token_ids.append(token)
 
+    def _stage_device_routes(self, actions):
+        if self.device_routes is not None:
+            raise RuntimeError("Previous routes were never consumed")
+        self.device_routes = actions
+        # Prepare the small KV and history while the sampler is running.
+        # The token readback fills in the catch-up plans for actual 8B rows.
+        return [SMALL] * len(actions)
+
+    def _read_tokens_and_routes(self, token_ids):
+        actions = self.device_routes
+        if actions is None:
+            return self._native_token_readback(token_ids)
+        if token_ids.shape != (len(actions), 1) or not actions.is_cuda:
+            raise RuntimeError("Merged routing requires one sampled token per synchronous row")
+        tagged = token_ids.masked_fill(actions[:, None].bool(), DEFER_LARGE)
+        rows = self._native_token_readback(tagged)
+        self.device_routes = None
+        self.merged_readbacks += 1
+        runner = self.model_runner
+        for row, ids in enumerate(rows):
+            if ids[0] != DEFER_LARGE:
+                continue
+            # This hook returns into _bookkeeping_sync *before* it writes
+            # either public token buffer. Native discard processing still runs.
+            ids.clear()
+            if runner.discard_request_mask.np[row]:
+                continue
+            rid = runner.input_batch.req_ids[row]
+            _, meta, history = self.pending_dual_steps[rid]
+            plan = self.dual_request_states[rid].plan(len(history), LARGE)
+            self.pending_dual_steps[rid] = (plan, replace(meta, route=LARGE, large_delta=plan.large_delta), history)
+        return rows
+
     def _sample_or_defer(self, grammar_output):
         runner = self.model_runner
         if (grammar_output is not None or runner.use_async_scheduling or
@@ -402,6 +444,13 @@ class DualWorker(Worker):
         batch = runner.input_batch
         validate = self.dual_trace.path is not None
         top = runner.execute_model_state.logits.argmax(-1).tolist() if validate else None
+        merged = self.dual_model_config.merge_route_readback
+        if merged:
+            if self.device_routes is None or runner.speculative_config is not None:
+                raise RuntimeError("Missing device routes or unsupported speculative decoding")
+            output = super().sample_tokens(grammar_output)
+            if self.device_routes is not None:
+                raise RuntimeError("Sampler bypassed merged token readback")
         deferred = []
         for rid, step in self.pending_dual_steps.items():
             plan, meta, _ = step
@@ -412,18 +461,22 @@ class DualWorker(Worker):
                 row = batch.req_id_to_index[rid]
                 # Normal synchronous sampler bookkeeping drops these rows:
                 # neither its dense input batch nor the request receives a token.
-                runner.discard_request_mask.np[row] = True
+                if not merged:
+                    runner.discard_request_mask.np[row] = True
                 self.pending_large[key] = step
                 self.dual_request_states[rid].small_num_computed_tokens = plan.history_len_before
                 if validate:
                     self.pending_small_argmax[key] = top[row]
                 deferred.append((key, plan.large_delta))
-        output = super().sample_tokens(grammar_output)
+        if not merged:
+            output = super().sample_tokens(grammar_output)
         output.dual_deferred = deferred
         for rid, (plan, meta, _) in self.pending_dual_steps.items():
             if plan.route == LARGE:
                 continue
             row = batch.req_id_to_index[rid]
+            if merged and not output.sampled_token_ids[row]:
+                continue  # Native discard, e.g. incomplete prefill.
             token = output.sampled_token_ids[row][0]
             self._append_runner_token(self.large_model_runner, rid, token)
             state = self.dual_request_states[rid]

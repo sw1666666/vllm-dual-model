@@ -72,6 +72,8 @@ def parse_args() -> argparse.Namespace:
         help="Disable CUDA graphs (useful for debugging, slower for steady-state runs).",
     )
     parser.add_argument("--output-json", type=Path)
+    parser.add_argument("--merge-route-readback", action="store_true",
+                        help="Use GRPO V3 with --queue-large: return routes with sampled tokens")
     add_grpo_threshold_args(parser)
     return parser.parse_args()
 
@@ -88,7 +90,7 @@ def main() -> None:
         p_large=args.p_large,
         mode=args.mode,
         sync_forward_enabled=args.enable_dual_forward,
-        queue_large=args.queue_large,
+        queue_large=args.queue_large, merge_route_readback=args.merge_route_readback,
         forced_routes=forced_routes,
         large_min_batch_size=args.large_min_batch_size,
         large_max_wait_steps=args.large_max_wait_steps,
@@ -178,7 +180,7 @@ def main() -> None:
         "forced_routes": forced_routes,
     }
     if args.router_checkpoint:
-        result["variant"] = "v2" if args.queue_large else "v1"
+        result["variant"] = config.grpo_variant
         result["router_checkpoint"] = args.router_checkpoint
         result["router_large_threshold"] = args.router_large_threshold
     result["large_model_forward_enabled"] = args.enable_dual_forward

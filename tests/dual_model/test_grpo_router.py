@@ -50,4 +50,7 @@ def test_large_threshold(tmp_path, threshold, expected):
     }, checkpoint)
     router = GrpoRouter(checkpoint, tmp_path, 1, "cpu", large_threshold=threshold)
     # P(large) ~= 0.45, 0.5, 0.55; the middle row exercises the old argmax tie.
-    assert router.decide(["a", "b", "c"], torch.tensor([[-0.2], [0.0], [0.2]])) == expected
+    hidden = torch.tensor([[-0.2], [0.0], [0.2]])
+    actions = router.decide_device(["a", "b", "c"], hidden)
+    assert actions.device == hidden.device
+    assert actions.tolist() == router.decide(["a", "b", "c"], hidden) == expected

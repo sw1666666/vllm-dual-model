@@ -45,6 +45,8 @@ def run(args):
     options = {}
     if dual:
         extra = {"queue_large": True} if args.queue_large else {}
+        if args.merge_route_readback:
+            extra["merge_route_readback"] = True
         cfg = DualModelConfig(enabled=True, large_model=str(large), mode="lazy",
                               sync_forward_enabled=True, router_checkpoint=args.checkpoint,
                               router_large_threshold=args.router_large_threshold,
@@ -127,6 +129,8 @@ def run(args):
                   mode=args.mode, queue_large=args.queue_large, router_large_threshold=args.router_large_threshold,
                   small_kv_bytes=small_bytes if dual else 0, large_kv_bytes=large_bytes,
                   max_model_len=length, public_token_budget=step_budget, runs=records)
+    if dual:
+        result["variant"] = "v3" if args.merge_route_readback else ("v2" if args.queue_large else "v1")
     if not check:
         result["median_tok_s"] = statistics.median(r["tok_s"] for r in records)
     (args.out / "result.json").write_text(json.dumps(result, indent=2) + "\n")

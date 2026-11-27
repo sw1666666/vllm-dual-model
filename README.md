@@ -12,7 +12,7 @@ Easy, fast, and cheap LLM serving for everyone
 
 ## 本分支的 Qwen3 双模型 GRPO 路由
 
-使用 `python -m vllm_dual generate` 生成文本，使用 `python -m vllm_dual benchmark` 测量吞吐。两个入口均可用 `--variant v1`（默认）立即执行选中的 8B，或用 `--variant v2` 将待处理的 8B 请求合批执行。
+使用 `python -m vllm_dual generate` 生成文本，使用 `python -m vllm_dual benchmark` 测量吞吐。两个入口均可用 `--variant v1`（默认）立即执行选中的 8B，或用 `--variant v2` 将待处理的 8B 请求合批执行。`--variant v3` 在 V2 攒批基础上将 GRPO 动作与采样 token 一次读回 CPU。
 
 ```bash
 python -m vllm_dual generate --variant v1 --prompt "计算 17 × 24。"

@@ -8,6 +8,7 @@
 |---|---|
 | `--variant v1`（默认） | 在本轮立即执行 8B，然后提交 token。省略版本参数也使用 V1。 |
 | `--variant v2` | 暂停该请求，其他请求可继续用 0.6B 解码。当待算位置达到 2 × 并发上限、最早的请求等到下一轮 0.6B 结束、或没有 0.6B 工作时，按 token 预算分批执行 8B。 |
+| `--variant v3` | 沿用 V2 攒批。GRPO 仍按当前 hidden state、历史 8B 使用情况和原阈值选模型。动作和 greedy 候选 token 在 sampler 已有的 GPU→CPU 读回中返回，8B 行在首次写历史前转为待处理，flush 后提交唯一的 token。 |
 
 ## 生成文本
 
@@ -39,11 +40,11 @@ python -m vllm_dual generate --prompt "计算 17 × 24。" --router-large-thresh
 
 ## 在 96 GB 卡上复现大并发实验
 
-在同一台机器上依次运行两种版本。下面的阈值来自约 15% 8B 路由实验，省略阈值时使用 0.5。
+在同一台机器上依次运行三个版本。下面的阈值来自约 15% 8B 路由实验，省略阈值时使用 0.5。
 
 ```bash
 export OMP_NUM_THREADS=8 HF_HUB_OFFLINE=1
-for variant in v1 v2; do
+for variant in v1 v2 v3; do
   for batch in 128 256; do
     python -m vllm_dual benchmark --variant "$variant" --batch "$batch" --router-large-threshold 0.6475
   done
@@ -53,7 +54,7 @@ done
 
 `--batch B` 设置活跃并发上限。默认合成负载一次提交 4B 个固定请求，每条输入 128 个 token。GSM8K 一次提交原有的 96 道题。每条固定输出 32 个 token，每组预热一次、正式计时三次，关闭详细 trace。`result.json` 中的 `median_tok_s` 是包含 prefill 和 decode 的端到端输出吞吐中位数。双模型每轮的实际 8B 路由率为 `runs[i].large_outputs / (requests × 32)`。
 
-计时外核对路由时，用 `--batch 8 --workload check` 分别运行 V1 和 V2，比较两个运行目录的 `actions-tokens.json`。每条请求记录 32 对路由动作和 token ID。
+计时外核对路由时，用 `--batch 8 --workload check` 分别运行 V2 和 V3，比较两个运行目录的 `actions-tokens.json`。每条请求记录 32 对路由动作和 token ID。
 
 阈值 0.6475 下，V2 在 B=128、256 合成输入上的实际 8B 占比分别为 15.65%、15.06%，在 GSM8K 上为 3.84%。大批合成输入上有少量请求随 FP16 组批形状改变生成轨迹，逐项核对见报告。[约 15% 路由率的结果和对齐记录](../../artifacts/grpo-blackwell-15pct/report.md) · [原阈值 0.5 的结果和配置](../../artifacts/grpo-blackwell-batch/report.md)
 

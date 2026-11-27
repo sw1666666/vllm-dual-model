@@ -50,8 +50,12 @@ def main():
     parser.add_argument("--workload", choices=("synthetic", "gsm8k", "check"), default="synthetic")
     parser.add_argument("--queue-large", action="store_true",
                         help="Use the V2 pending queue in an online GRPO run")
+    parser.add_argument("--merge-route-readback", action="store_true",
+                        help="Use GRPO V3 with --queue-large: return routes with sampled tokens")
     add_grpo_threshold_args(parser)
     args = parser.parse_args()
+    if args.merge_route_readback and (args.mode != "grpo" or not args.queue_large):
+        parser.error("--merge-route-readback requires grpo --queue-large")
     if args.batch is not None:
         if __package__:
             from .grpo_batch_experiment import run
@@ -78,6 +82,7 @@ def main():
             p_large=0.1, router_checkpoint=args.checkpoint if learned else None,
             trace_path=str(trace),
             **({"queue_large": True} if args.queue_large else {}),
+            **({"merge_route_readback": True} if args.merge_route_readback else {}),
         )
         options.update(worker_cls="vllm_dual.worker.DualWorker",
                        scheduler_cls="vllm_dual.scheduler.DualScheduler",
@@ -156,6 +161,7 @@ def main():
     if learned:
         for run in runs:
             run["router_large_threshold"] = args.router_large_threshold
+            run["variant"] = config.grpo_variant if args.mode == "grpo" else "replay"
     if args.mode == "replay":
         control.stop()
         assert len(original) == len(runs)
