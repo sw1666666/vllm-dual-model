@@ -19,6 +19,7 @@ from vllm.v1.worker.gpu_worker import Worker
 
 from .config import DualModelConfig
 from .grpo_router import GrpoRouter
+from .margin_router import MarginRouter
 from .model_runner import DualRuntime
 from .router import LARGE, SMALL, ROUTE_NAMES, DeterministicRouter
 from .scheduler_output import DualStepMetadata
@@ -48,13 +49,13 @@ class DualWorker(Worker):
             p_large=self.dual_model_config.p_large,
             forced_routes=self.dual_model_config.forced_routes,
         )
-        self.grpo_router: GrpoRouter | None = None
+        self.grpo_router: GrpoRouter | MarginRouter | None = None
         self.dual_request_states: dict[str, DualRequestState] = {}
         self.large_model_runner: GPUModelRunner | None = None
         self.pending_dual_steps: dict[
-            str, tuple[StepPlan, DualStepMetadata, list[int]]
+            str, tuple[StepPlan, DualStepMetadata, list[int] | None]
         ] = {}
-        self.pending_large: dict[tuple[str, int], tuple[StepPlan, DualStepMetadata, list[int]]] = {}
+        self.pending_large: dict[tuple[str, int], tuple[StepPlan, DualStepMetadata, list[int] | None]] = {}
         self.pending_small_argmax: dict[tuple[str, int], int] = {}
         self.dual_cleanup_count = 0
         self.dual_trace = JsonlTraceWriter(
@@ -117,6 +118,8 @@ class DualWorker(Worker):
                     large_vllm_config.model_config.is_encoder_decoder
                 ),
                 max_num_batched_tokens=(
+                    large_vllm_config.scheduler_config.max_num_batched_tokens
+                    if self.dual_model_config.margin_v4 else
                     large_vllm_config.scheduler_config.max_num_seqs
                     * large_vllm_config.model_config.max_model_len
                 ),
@@ -149,7 +152,9 @@ class DualWorker(Worker):
                 self.model_config.hf_config.hidden_size, self.device,
                 large_threshold=self.dual_model_config.router_large_threshold,
             )
-        if self.dual_model_config.merge_route_readback:
+        if self.dual_model_config.margin_v4:
+            self.grpo_router = MarginRouter()
+        if self.dual_model_config.merge_route_readback or self.dual_model_config.margin_v4:
             self.device_routes = None
             self.merged_readbacks = 0
             self._native_token_readback = self.model_runner._to_list
@@ -222,6 +227,20 @@ class DualWorker(Worker):
         flush = getattr(scheduler_output, "dual_flush", None)
         if flush:
             return self._flush_large(scheduler_output, flush)
+        if self.dual_model_config.margin_v4 and scheduler_output.preempted_req_ids:
+            # Keep the committed public tokens, output index, and GRPO usage.
+            # Both runners must rebuild the evicted KV from public history.
+            evicted = SchedulerOutput.make_empty()
+            evicted.finished_req_ids = set(scheduler_output.preempted_req_ids)
+            self.large_model_runner.execute_model(evicted)
+            for rid in evicted.finished_req_ids:
+                state = self.dual_request_states.get(rid)
+                if state is not None:
+                    key = (rid, state.output_index)
+                    self.pending_large.pop(key, None)
+                    self.pending_small_argmax.pop(key, None)
+                    state.small_num_computed_tokens = 0
+                    state.large_num_computed_tokens = 0
         for finished_req_id in scheduler_output.finished_req_ids:
             if self.dual_model_config.queue_large and finished_req_id in self.dual_request_states:
                 key = (finished_req_id, self.dual_request_states[finished_req_id].output_index)
@@ -267,19 +286,23 @@ class DualWorker(Worker):
         large_req_ids: list[str] = []
         req_ids = self.model_runner.input_batch.req_ids
         actions = None
-        if self.grpo_router is not None:
+        if self.dual_model_config.margin_v4:
+            actions = self._stage_device_routes(self.grpo_router.decide(self.model_runner.execute_model_state.logits))
+        elif self.grpo_router is not None:
             hidden = self.model_runner.execute_model_state.sample_hidden_states
             if self.dual_model_config.merge_route_readback:
                 actions = self._stage_device_routes(self.grpo_router.decide_device(req_ids, hidden))
             else:
                 actions = self.grpo_router.decide(req_ids, hidden)
+        defer_history = self.dual_model_config.margin_v4
         for row, req_id in enumerate(req_ids):
             if req_id not in scheduler_output.num_scheduled_tokens:
                 continue
             request = self.model_runner.requests[req_id]
             if request.prompt_token_ids is None:
                 raise AssertionError("M7 does not support prompt embeddings")
-            history = list(request.prompt_token_ids) + list(request.output_token_ids)
+            history_len = len(request.prompt_token_ids) + len(request.output_token_ids)
+            history = None if defer_history else list(request.prompt_token_ids) + list(request.output_token_ids)
             state = self.dual_request_states.setdefault(req_id, DualRequestState())
             if req_id not in scheduler_metadata:
                 raise RuntimeError(f"missing route metadata for {req_id}")
@@ -289,15 +312,15 @@ class DualWorker(Worker):
                 action = actions[row]
                 scheduled_step = replace(
                     scheduled_step, route=action, large_before=before,
-                    large_delta=len(history) - before if action == LARGE else 0,
+                    large_delta=history_len - before if action == LARGE else 0,
                 )
             if scheduled_step.output_index != state.output_index:
                 raise AssertionError("scheduler/worker output index mismatch")
-            if scheduled_step.history_len_before != len(history):
+            if scheduled_step.history_len_before != history_len:
                 raise AssertionError("scheduler/worker public history mismatch")
             if scheduled_step.large_before != state.large_num_computed_tokens:
                 raise AssertionError("scheduler/worker large progress mismatch")
-            plan = state.plan(len(history), scheduled_step.route, sync_large=sync_large)
+            plan = state.plan(history_len, scheduled_step.route, sync_large=sync_large)
             if scheduled_step.large_delta != plan.large_delta:
                 raise AssertionError("scheduler/worker large delta mismatch")
             self.pending_dual_steps[req_id] = (plan, scheduled_step, history)
@@ -313,6 +336,14 @@ class DualWorker(Worker):
         if large_output is not None:
             raise AssertionError("M4 expects deferred sampling from both runners")
         return output
+
+    @staticmethod
+    def _history_slice(request, start, stop):
+        prompt = request.prompt_token_ids
+        boundary = len(prompt)
+        prefix = prompt[start:min(stop, boundary)]
+        prefix.extend(request.output_token_ids[max(0, start - boundary):max(0, stop - boundary)])
+        return prefix
 
     def _make_lazy_large_output(
         self,
@@ -338,7 +369,8 @@ class DualWorker(Worker):
                 new_reqs.append(
                     NewRequestData(
                         req_id=req_id,
-                        prompt_token_ids=history.copy(),
+                        prompt_token_ids=(self._history_slice(small_request, 0, plan.history_len_before)
+                                          if history is None else history.copy()),
                         mm_features=[],
                         sampling_params=small_request.sampling_params,
                         pooling_params=small_request.pooling_params,
@@ -432,7 +464,7 @@ class DualWorker(Worker):
                 continue
             rid = runner.input_batch.req_ids[row]
             _, meta, history = self.pending_dual_steps[rid]
-            plan = self.dual_request_states[rid].plan(len(history), LARGE)
+            plan = self.dual_request_states[rid].plan(meta.history_len_before, LARGE)
             self.pending_dual_steps[rid] = (plan, replace(meta, route=LARGE, large_delta=plan.large_delta), history)
         return rows
 
@@ -444,7 +476,7 @@ class DualWorker(Worker):
         batch = runner.input_batch
         validate = self.dual_trace.path is not None
         top = runner.execute_model_state.logits.argmax(-1).tolist() if validate else None
-        merged = self.dual_model_config.merge_route_readback
+        merged = self.dual_model_config.merge_route_readback or self.dual_model_config.margin_v4
         if merged:
             if self.device_routes is None or runner.speculative_config is not None:
                 raise RuntimeError("Missing device routes or unsupported speculative decoding")
@@ -515,7 +547,10 @@ class DualWorker(Worker):
             if validate:
                 assert token == top[row]
                 self._trace_queued(rid, meta, plan, token, self.pending_small_argmax.pop((rid, index)),
-                                   top[row], history[plan.large_before:plan.history_len_before])
+                                   top[row], (history[plan.large_before:plan.history_len_before]
+                                              if history is not None else self._history_slice(
+                                                  self.model_runner.requests[rid], plan.large_before,
+                                                  plan.history_len_before)))
             self.grpo_router.commit(rid, index, LARGE)
             state.commit_sample()
         return output

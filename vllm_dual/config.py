@@ -60,11 +60,16 @@ class DualModelConfig:
     queue_large: bool = False
     merge_route_readback: bool = False
 
+    margin_v4: bool = False
+
     def __post_init__(self) -> None:
         if self.merge_route_readback and not (self.queue_large and self.router_checkpoint):
             raise ValueError("GRPO V3 requires a router checkpoint and queued 8B execution")
         validate_large_threshold(self.router_large_threshold)
-        if self.queue_large and not self.router_checkpoint:
+        if self.margin_v4 and (not self.enabled or not self.sync_forward_enabled or self.mode != "lazy"
+                               or not self.queue_large or self.router_checkpoint or self.forced_routes is not None):
+            raise ValueError("Margin V4 requires queued lazy dual forward")
+        if self.queue_large and not (self.router_checkpoint or self.margin_v4):
             raise ValueError("Queued large execution requires the online GRPO router")
         if self.router_checkpoint and (
             not self.enabled
@@ -90,6 +95,8 @@ class DualModelConfig:
 
     @property
     def grpo_variant(self) -> str:
+        if self.margin_v4:
+            return "v4"
         if self.merge_route_readback:
             return "v3"
         return "v2" if self.queue_large else "v1"

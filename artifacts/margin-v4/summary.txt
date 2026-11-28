@@ -1,0 +1,4 @@
+stop reasons {'stop'}
+H seconds [23.676062172977254, 23.699073191965, 23.689846103079617] median 23.689846103079617 rates [5260.123034401513, 5255.015628299931, 5257.062433335532] {'tokens': 124539, 'large_commits': 10126, 'large_positions': 149371, 'small_forwards': 1621, 'large_forwards': 562, 'grace_turns': 0, 'grace_with_arrivals': 0}
+I seconds [23.316754748811945, 23.24463032395579, 23.38000707817264] median 23.316754748811945 rates [5341.180680658213, 5357.753522612523, 5326.730637146319] {'tokens': 124539, 'large_commits': 10126, 'large_positions': 149371, 'small_forwards': 1686, 'large_forwards': 525, 'grace_turns': 183, 'grace_with_arrivals': 53}
+seconds saved 0.3730913542676717 throughput change % 1.6000998350196305 paired savings [0.3593074241653085, 0.45444286800920963, 0.309839024906978]

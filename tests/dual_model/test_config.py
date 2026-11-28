@@ -46,3 +46,14 @@ def test_grpo_threshold_cli():
             parser.parse_args(["--router-thresholds", value])
     with pytest.raises(ValueError, match="router_large_threshold"):
         DualModelConfig(router_large_threshold=float("nan"))
+
+
+def test_margin_v4_requires_queued_lazy_routing():
+    cfg = DualModelConfig(margin_v4=True, enabled=True, sync_forward_enabled=True,
+                          mode="lazy", queue_large=True)
+    assert cfg.grpo_variant == "v4"
+    assert DualModelConfig.from_additional_config({"dual_model": cfg.to_dict()}) == cfg
+    for override in ({"queue_large": False}, {"router_checkpoint": "policy.pt"},
+                     {"mode": "sync"}, {"forced_routes": [0]}):
+        with pytest.raises(ValueError):
+            DualModelConfig(**{**cfg.to_dict(), **override})

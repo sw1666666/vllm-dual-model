@@ -10,7 +10,7 @@
 Easy, fast, and cheap LLM serving for everyone
 </h3>
 
-## 本分支的 Qwen3 双模型 GRPO 路由
+## 本分支的 Qwen3 双模型路由
 
 使用 `python -m vllm_dual generate` 生成文本，使用 `python -m vllm_dual benchmark` 测量吞吐。两个入口均可用 `--variant v1`（默认）立即执行选中的 8B，或用 `--variant v2` 将待处理的 8B 请求合批执行。`--variant v3` 在 V2 攒批基础上将 GRPO 动作与采样 token 一次读回 CPU。
 
@@ -18,6 +18,15 @@ Easy, fast, and cheap LLM serving for everyone
 python -m vllm_dual generate --variant v1 --prompt "计算 17 × 24。"
 python -m vllm_dual benchmark --variant v2 --batch 128 --router-large-threshold 0.6475
 ```
+
+**V4 固定为 Margin I**。使用 Qwen3-0.6B 的前两名词元概率差（δ=0.2）选择 8B，动作随 sampler token 合并读回。首次 8B 调用按需构造历史；等待到限且仍有 small 工作时，同类的后续 8B 请求可按队首多等一个 small 步。模型目录可通过 `--models` 指定，V4 使用单张 96 GB GPU 和 24.5 / 31.5 GiB KV。
+
+```bash
+python -m vllm_dual generate --variant v4 --prompt "计算 17 × 24。"
+OMP_NUM_THREADS=8 python -m vllm_dual benchmark --variant v4
+```
+
+benchmark 预热一次，再对固定的 512 道 GSM8K 题执行一次自然结束的生成。B=512，上下文 8192，FP16 greedy，重复惩罚 1.15。I 对 H 的三轮真实吞吐提升 4.88%；固定 H 的 token、动作及结束位置后提升 1.60%。真实生成的 512 道题中，正确答案净少 1 题（−0.1953125 个百分点）。[真实生成](artifacts/margin-v4/live-summary.txt) · [固定轨迹](artifacts/margin-v4/summary.txt) · [逐题评分](artifacts/margin-v4/quality.json)
 
 模型路径、并发选择及复现命令见[中文使用指南](docs/benchmarking/grpo-router.md)。单卡 96 GB 上的路由占比、吞吐和逐请求对齐结果见[约 15% 8B 路由实验](artifacts/grpo-blackwell-15pct/report.md)。
 

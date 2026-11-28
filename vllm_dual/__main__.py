@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from uuid import uuid4
 
-from .config import add_grpo_threshold_args
+from .config import DEFAULT_LARGE_THRESHOLD, add_grpo_threshold_args
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -16,8 +16,9 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     common = argparse.ArgumentParser(add_help=False)
     add_grpo_threshold_args(common)
-    common.add_argument("--variant", choices=("v1", "v2", "v3"), default="v1",
-                        help="v1 runs 8B immediately (default); v2 batches pending 8B work; v3 also returns routes with sampled tokens")
+    common.set_defaults(router_large_threshold=None)
+    common.add_argument("--variant", choices=("v1", "v2", "v3", "v4"), default="v1",
+                        help="v1 runs 8B immediately (default); v2 batches pending 8B work; v3 also returns routes with sampled tokens; v4 uses the Margin I policy")
     common.add_argument("--models", type=Path, default=Path("/root/autodl-tmp/models"),
                         help="Parent of Qwen3-0.6B and Qwen3-8B (default: /root/autodl-tmp/models)")
     common.add_argument("--checkpoint", type=Path,
@@ -34,6 +35,14 @@ def main():
     benchmark.add_argument("--workload", choices=("synthetic", "gsm8k", "check"),
                            help="Fixed-request workload (default with --batch: synthetic)")
     args = parser.parse_args()
+    if args.variant == "v4":
+        if args.checkpoint or args.router_large_threshold is not None:
+            parser.error("V4 uses a fixed probability margin of 0.2")
+        if args.command == "benchmark" and (args.workload not in (None, "gsm8k") or args.batch not in (None, 512)):
+            parser.error("V4 benchmark uses the frozen GSM8K workload at batch 512")
+        from .margin_v4 import run
+        run(args)
+        return
     if args.command == "benchmark":
         if args.workload and args.batch is None:
             parser.error("--workload requires --batch")
@@ -42,7 +51,7 @@ def main():
         if args.workload == "gsm8k" and args.batch != 96:
             parser.error("--workload gsm8k requires --batch 96")
     checkpoint = args.checkpoint or args.models / "grpo_switch_policy_2600.pt"
-    threshold = str(args.router_large_threshold)
+    threshold = str(DEFAULT_LARGE_THRESHOLD if args.router_large_threshold is None else args.router_large_threshold)
     out = (args.output_root / f"{args.command}-{args.variant}-{threshold}-{uuid4().hex}").resolve()
 
     if args.command == "generate":

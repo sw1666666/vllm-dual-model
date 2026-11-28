@@ -1,0 +1,11 @@
+H seconds [23.658072603167966, 23.559765374055132, 23.765282012987882] median 23.658072603167966
+H tok_s [5264.122825598372, 5286.088295987313, 5240.375432193005] median 5264.122825598372
+H {'tokens': 124539, 'token_digest': 'a3c8e9c26f5ab2ca0b92bfdbfb3b8e7da283a6989750cfec323f8ad7e9ebb804', 'large_commits': 10126, 'large_positions': 149371, 'large_forwards': 562, 'small_forwards': 1621, 'preemptions': 0, 'peak_active': 512, 'grace_turns': 0, 'grace_with_arrivals': 0, 'grace_added_requests': 0} 8B forward ms 12943.719609260559
+I seconds [22.509586034109816, 22.596092806197703, 22.520496017066762] median 22.520496017066762
+I tok_s [5523.468970579712, 5502.322948766534, 5520.793143533692] median 5520.793143533692
+I {'tokens': 124331, 'token_digest': '8a852789f42020c00f46a954602a18ad712e8329928c439ef669e58710f287b0', 'large_commits': 10092, 'large_positions': 149206, 'large_forwards': 501, 'small_forwards': 1488, 'preemptions': 0, 'peak_active': 512, 'grace_turns': 172, 'grace_with_arrivals': 55, 'grace_added_requests': 87} 8B forward ms 12132.350975036621
+request_token_sha256 changed requests 9
+request_route_sha256 changed requests 10
+paired time saved [1.14848656905815, 0.9636725678574294, 1.24478599592112]
+H-I seconds 1.1375765861012042 rate gain % 4.875842119169094
+previous G median 5231.312812545414 rate gain vs G % 5.533607745536928

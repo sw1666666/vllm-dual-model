@@ -35,6 +35,7 @@ class DualScheduler(Scheduler):
         self.large_num_computed_tokens: dict[str, int] = {}
         # (request, public output index) -> (private input positions, small round).
         self.pending_large: dict[tuple[str, int], tuple[int, int]] = {}
+        self.graced_head = None
         self.small_round = 0
         self.draining_large = False
         self.large_batch_gate = LargeBatchGate(
@@ -134,6 +135,14 @@ class DualScheduler(Scheduler):
             self.dual_model_config.enabled,
         )
 
+    def _preempt_request(self, request, timestamp):
+        if self.dual_model_config.margin_v4:
+            rid = request.request_id
+            self.large_kv_cache_manager.free(request)
+            self.large_num_computed_tokens.pop(rid, None)
+            self.pending_large.pop((rid, request.num_output_tokens), None)
+        super()._preempt_request(request, timestamp)
+
     def schedule(self):
         if self.dual_model_config.queue_large and self.pending_large:
             for key in tuple(self.pending_large):
@@ -145,9 +154,14 @@ class DualScheduler(Scheduler):
                 no_small = len(self.running) == len(self.pending_large) and (
                     not self.waiting or len(self.running) >= self.max_num_running_reqs
                 )
-                if (self.draining_large or positions >= 2 * self.max_num_running_reqs
-                        or self.small_round > oldest or no_small):
+                if self.draining_large or positions >= 2 * self.max_num_running_reqs or no_small:
                     return self._schedule_large_flush()
+                if self.small_round > oldest:
+                    head = next(iter(self.pending_large))
+                    if (not self.dual_model_config.margin_v4 or head == self.graced_head
+                            or not self._is_pure_subsequent_batch()):
+                        return self._schedule_large_flush()
+                    self.graced_head = head
         output = self._schedule_with_large_batch_gate()
         if not (
             self.dual_model_config.enabled
@@ -178,7 +192,7 @@ class DualScheduler(Scheduler):
             # GRPO decides on this step's small hidden state in the worker.
             # Reserve pages up to the public history; reservation does not
             # imply that the large runner has populated those pages.
-            learned = bool(self.dual_model_config.router_checkpoint)
+            learned = self.dual_model_config.margin_v4 or bool(self.dual_model_config.router_checkpoint)
             route = None if learned else self.dual_router.route(req_id, output_index)
             large_before = self.large_num_computed_tokens.get(req_id, 0)
             large_delta = (
@@ -235,6 +249,15 @@ class DualScheduler(Scheduler):
         output.dual_model_metadata = metadata
         return output
 
+    def _is_pure_subsequent_batch(self):
+        # A first call has no private KV, so delta equals the full history.
+        # Match H's two homogeneous subsequent-call classes exactly.
+        single = next(iter(self.pending_large.values()))[0] == 1
+        for (rid, _), (delta, _) in self.pending_large.items():
+            if delta == self.requests[rid].num_tokens or (delta == 1) != single:
+                return False
+        return True
+
     def _schedule_large_flush(self):
         # Public small KV was computed on the routing round. Return a sample
         # for that same position without calling Scheduler._update_after_schedule.
@@ -259,6 +282,7 @@ class DualScheduler(Scheduler):
         if (
             self.dual_model_config.mode != "lazy"
             or not self.dual_model_config.sync_forward_enabled
+            or self.dual_model_config.margin_v4
             or self.dual_model_config.router_checkpoint
             or self.dual_model_config.large_min_batch_size == 1
         ):
@@ -309,6 +333,7 @@ class DualScheduler(Scheduler):
         if self.dual_model_config.queue_large:
             flush = getattr(scheduler_output, "dual_flush", ())
             if flush:
+                self.graced_head = None
                 for key in flush:
                     del self.pending_large[key]
             elif scheduler_output.total_num_scheduled_tokens:
